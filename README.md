@@ -9,11 +9,13 @@ FUNCIONAMIENTO Y ESTRUCTURA DEL LOGIN:
 
   
     INTERACCIÓN BOTÓN 2: REGISTRARSE
+
 ![image](https://github.com/user-attachments/assets/4802723b-a060-4159-8b02-2b47e31abe3a)
 
       
   VISTA DESDE FIREBASE:
-      ![image](https://github.com/user-attachments/assets/efd97908-1d68-4821-84ac-8a365b6195cf)
+  
+ ![image](https://github.com/user-attachments/assets/efd97908-1d68-4821-84ac-8a365b6195cf)
 
 
     INTERACCIÓN BOTÓN 3: INCIAR SESIÓN
