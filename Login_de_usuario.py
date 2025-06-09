@@ -1,31 +1,6 @@
-import firebase_admin
-from firebase_admin import credentials, db
+from TitulosYutilidades import print_advertencia, print_confirmado, print_error, print_información, print_opcion, print_Titulos
+from firebase_admin import db
 import re
-
-# Inicialización de Firebase
-cred = credentials.Certificate("base-de-datos-proyecto-8b344-firebase-adminsdk-fbsvc-281358fd83.json")
-firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://base-de-datos-proyecto-8b344-default-rtdb.firebaseio.com"
-})
-
-def print_Titulos(text):
-    print(f"\n\033[1;44;37m===== {text} =====\033[0m\n")  # Negrita, fondo azul, texto blanco (formato pa los titulos jiji)
-
-def print_confirmado(text):
-    print(f"\033[1;32m✓ {text}\033[0m")  # Negrita, texto verde (para confirmación de datos)
-
-def print_error(text):
-    print(f"\033[1;31m✗ {text}\033[0m")  # Negrita, texto rojo (para errores)
-
-def print_advertencia(text):
-    print(f"\033[1;33m⚠ {text}\033[0m")  # Negrita, texto amarillo(para especificar las condiciones requeridas)
-
-def print_información(text):
-    print(f"\033[1;36m➤ {text}\033[0m")  # Negrita, texto cyan
-
-def print_opcion(number, text):
-    print(f"\033[1;35m{number}.\033[0m {text}")  # Negrita, texto magenta para el número (opciones para elegir en menu)
-
 
 def authenticate_user(email, password):
     try:
@@ -85,8 +60,7 @@ def login():
         else:
             print_advertencia("⚠ Credenciales incorrectas. Intente nuevamente.\n")
 
-
-def register_user():
+def registrar_():
     print_Titulos("📝 REGISTRO DE USUARIO")
     
     name = input("\033[3;34m↳ Nombre completo: \033[0m").strip()
@@ -140,71 +114,3 @@ def register_user():
         print_confirmado("¡Bienvenido al laberinto! Ahora puedes iniciar sesión.")
     except Exception as e:
         print_error(f"Error al registrar: {e}")
-    
-def delete_user():
-    print_Titulos("✖ ELIMINACIÓN DE CUENTA ✖")
-    ref = db.reference("users")
-
-    correo = input("\033[3;34m↳ Email: \033[0m").strip()
-    password = input("\033[3;34m↳ Contraseña: \033[0m").strip()
-
-    usuarios = ref.get()
-    encontrado = False
-
-    if not usuarios:
-        print_error("No hay usuarios registrados.")
-        return
-
-    for id_usuario, datos in usuarios.items():
-        email_db = datos.get("email")
-        password_db = datos.get("Contraseña")  
-
-        if correo == email_db and password == password_db:
-            encontrado = True
-            print_advertencia(f"Se encontró una cuenta asociada al correo: {correo}")
-            print_información(f"Usuario: {id_usuario}")
-            print_información(f"Nombre: {datos.get('name')}")
-            print_información(f"Ciudad: {datos.get('address', {}).get('city', 'No registrada')}")
-
-            confirmar = input("\n\033[1;31m¿Estás seguro de que deseas eliminar esta cuenta? (y/n): \033[0m").strip().lower()
-            if confirmar == "y":
-                ref.child(id_usuario).delete()
-                print_confirmado(f"Usuario '{id_usuario}' ha sido eliminado del laberinto.")
-            else:
-                print_advertencia("Eliminación cancelada por el usuario.")
-            break
-
-    if not encontrado:
-        print_error("⚠️ Credenciales incorrectas o usuario no encontrado.")
-
-
-
-def main_menu():
-    while True:
-        print_Titulos("MENÚ PRINCIPAL")
-        print_opcion("1", "Iniciar sesión")
-        print_opcion("2", "Registrarse")
-        print_opcion("3", "Salir")
-        print_opcion("4", "Eliminar Usuario")
-        
-        choice = input("\n\033[1;33m↳ Selecciona una opción (1-4): \033[0m").strip()
-        
-        if choice == "1":
-            login()
-        elif choice == "2":
-            register_user()
-        elif choice == "3":
-            print_confirmado("¡Buena suerte aventurero! Has salido del laberinto.")
-        elif choice == "4":
-            delete_user()
-            break
-        else:
-            print_error("Opción no válida. Por favor ingrese 1, 2, 3 o 4.")
-
-if __name__ == "__main__":
-    try:
-        main_menu()
-    except KeyboardInterrupt:
-        print("\n\n\033[1;31mOperación cancelada por el jugador\033[0m")
-    except Exception as e:
-        print_error(f"Error inesperado: {e}")
