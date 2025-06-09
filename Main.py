@@ -14,6 +14,7 @@ from TitulosYutilidades import (
 from Eliminación_de_Usuario import delete_user
 from Login_de_usuario import login, authenticate_user, registrar_
 from Login_de_usuario import registrar_
+from JajajLosPuntajes import ver_tabla_puntajes
 #from JajajLosPuntajes import mostrar_tabla_puntajes  # ✅ Asegúrate de que esta función exista
 # Inicialización de Firebase
 cred = credentials.Certificate("base-de-datos-proyecto-8b344-firebase-adminsdk-fbsvc-281358fd83.json")
@@ -28,7 +29,7 @@ def main_menu():
         print_opcion("1", "Iniciar sesión")
         print_opcion("2", "Registrarse")
         print_opcion("3", "Eliminar Usuario")
-        print_opcion("4", "Ver Tabla de Puntajes")
+        print_opcion("4", "Ver Top Global de monedas")
         print_opcion("5", "Salir")
         
         choice = input("\n\033[1;33m↳ Selecciona una opción (1-5): \033[0m").strip()
@@ -40,7 +41,7 @@ def main_menu():
         elif choice == "3":
             delete_user()
         elif choice == "4":
-            mostrar_tabla_puntajes()
+            ver_tabla_puntajes()
         elif choice == "5":
             print_confirmado("¡Gracias por jugar!")
             break

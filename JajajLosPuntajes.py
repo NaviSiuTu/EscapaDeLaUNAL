@@ -7,43 +7,29 @@ from Login_de_usuario import authenticate_user
 from Login_de_usuario import login
 
 
-def registrar_puntaje(usuario_id, nombre, puntaje):
-    try:
-        scores_ref = db.reference("Puntajes")
-        scores_ref.child(usuario_id).set({
-            "name": nombre,
-            "Puntaje": puntaje
-        })
-        print_confirmado("✅ Puntaje registrado correctamente.")
-    except Exception as e:
-        print_error(f"Error al registrar puntaje: {e}")
+def ver_tabla_puntajes():
+    print_Titulos("📊 TOP GLOBAL DE MONEDAS")
 
-def mostrar_tabla_puntajes():
-    print_Titulos("🏆 TABLA DE PUNTAJES 🏆")
-    try:
-        scores_ref = db.reference("scores")
-        puntajes = scores_ref.get()
+    users_ref = db.reference('users')
+    users = users_ref.get()
 
-        if not puntajes:
-            print_advertencia("Aún no hay puntajes registrados.")
-            return
+    if not users:
+        print_error("No hay usuarios registrados en Firebase.")
+        return
 
-        # Ordenar de mayor a menor
-        lista_ordenada = sorted(puntajes.items(), key=lambda x: x[1]['score'], reverse=True)
+    # Crear una lista con nombre y monedas
+    puntajes = []
+    for user_id, data in users.items():
+        nombre = data.get('name', 'Desconocido')
+        monedas = data.get('monedas', 0)
+        puntajes.append((nombre, monedas))
 
-        for i, (user_id, data) in enumerate(lista_ordenada, start=1):
-            print(f"\033[1;35m{i}. {data['name']}: {data['score']} puntos\033[0m")
-    except Exception as e:
-        print_error(f"Error al obtener la tabla: {e}")
+    # Ordenar de mayor a menor por monedas
+    puntajes.sort(key=lambda x: x[1], reverse=True)
 
+    # Imprimir tabla
+    for i, (nombre, monedas) in enumerate(puntajes, start=1):
+        print(f"{i}. {nombre} — 🪙 {monedas} monedas")
 
-# Supón que esto ocurre después de un reto
-usuario_id = "Ivan Santisteban"  # Debe coincidir con el ID en Firebase
-nombre = "Ivan Santisteban"
-puntaje = 2000
-
-registrar_puntaje(usuario_id, nombre, puntaje)
-
-mostrar_tabla_puntajes()
 
 

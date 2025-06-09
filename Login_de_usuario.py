@@ -102,7 +102,8 @@ def registrar_():
         "email": email,
         "is_active": True,
         "Contraseña": password,
-        "roles": ["viewer"],
+        "roles": ["Jugador"],
+        "Monedas" : 100,
         "address": {
             "city": city
         }
@@ -114,3 +115,4 @@ def registrar_():
         print_confirmado("¡Bienvenido al laberinto! Ahora puedes iniciar sesión.")
     except Exception as e:
         print_error(f"Error al registrar: {e}")
+
