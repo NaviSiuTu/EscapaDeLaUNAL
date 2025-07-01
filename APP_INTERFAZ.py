@@ -43,10 +43,10 @@ def main():
     root.resizable(False, False)
 
     # === Cargar imágenes ===
-    marco_img = Image.open("Menu.png").resize((417, 497))
+    marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
 
-    logo_img = Image.open("Menu (1).png").resize((130, 130))
+    logo_img = Image.open("IMAGENES/Menu (1).png").resize((130, 130))
     logo_tk = ImageTk.PhotoImage(logo_img)
 
     # === Canvas para fondo e imagen ===
@@ -105,10 +105,10 @@ def abrir_ventana_registro():
     ventana.geometry("400x500")
     ventana.resizable(False, False)
 
-    marco_img = Image.open("Menu.png").resize((417, 497))
+    marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
 
-    logo_img = Image.open("Menu (1).png").resize((130, 130))
+    logo_img = Image.open("IMAGENES/Menu (1).png").resize((130, 130))
     logo_tk = ImageTk.PhotoImage(logo_img)
 
     canvas = tk.Canvas(ventana, width=400, height=500, highlightthickness=0)

@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 # Ruta al GIF
-gif_path = "Splashjiji.gif"
+gif_path = "IMAGENES/Splashjiji.gif"
 app_path = "APP_INTERFAZ.py"  # Cambia esto por el nombre real de tu app
 
 # Verificar si el gif y la app existen
