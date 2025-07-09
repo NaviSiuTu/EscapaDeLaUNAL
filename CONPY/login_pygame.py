@@ -129,7 +129,7 @@ while running:
 
     # Etiquetas
     screen.blit(font_small.render("EMAIL", True, NEGRO), (110, 175))
-    screen.blit(font_small.render("CONTRASEÑA", True, NEGRO), (110, 225))
+    screen.blit(font_small.render("PASSWORD", True, NEGRO), (110, 225))
 
     # Cajas de entrada
     email_box.update(mouse_pos)

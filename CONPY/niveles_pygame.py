@@ -99,7 +99,7 @@ while running:
     screen.blit(texto_jugador, (10, 10))
 
     # Título
-    titulo = fuente_big.render("SELECCIÓN DE NIVELES", True, BLANCO)
+    titulo = fuente_big.render("SELECCION DE NIVELES", True, BLANCO)
     screen.blit(titulo, (WIDTH//2 - titulo.get_width()//2, 80))
 
     # Botón Nivel Alpha
@@ -122,7 +122,7 @@ while running:
     color_volver = VERDE_HOVER if boton_volver.collidepoint(mouse_pos) else VERDE
     pygame.draw.rect(screen, color_volver, boton_volver, border_radius=8)
     pygame.draw.rect(screen, NEGRO, boton_volver, 2, border_radius=8)
-    texto_volver = fuente.render("VOLVER AL MENÚ", True, NEGRO)
+    texto_volver = fuente.render("VOLVER AL MENU", True, NEGRO)
     screen.blit(texto_volver, (boton_volver.centerx - texto_volver.get_width() // 2,
                                 boton_volver.centery - texto_volver.get_height() // 2))
 
@@ -152,7 +152,7 @@ while running:
                 sys.exit()
             elif boton_volver.collidepoint(event.pos):
                 pygame.quit()
-                os.system(f'python "CONPY/menu_principal.py" {uid} {nombre_usuario} {monedas}')
+                os.system(f'python "CONPY/menu_pygame.py" {uid} {nombre_usuario} {monedas}')
                 sys.exit()
             elif buho_rect.collidepoint(event.pos):
                 dialogo_idx = (dialogo_idx + 1) % len(dialogos)

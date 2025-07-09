@@ -83,20 +83,25 @@ def volver_login():
 # Firebase registrar
 def registrar_usuario(nombre, email, password, ciudad):
     ref = db.reference("users")
-    users = ref.get() or {}
-    for u in users.values():
-        if u.get("email") == email:
-            return False
-    new_user = {
+    username = email.split("@")[0]  # Ej: ivan_santisteban
+    user_ref = ref.child(username)
+    
+    # Validar si ya existe
+    if user_ref.get() is not None:
+        return False
+    
+    user_data = {
         "name": nombre,
         "email": email,
         "password": password,
-        "city": ciudad,
-        "coins": 100,
-        "items": {}
+        "is_active": True,
+        "monedas": 400,
+        "compras": {}  # Diccionario vacío
     }
-    ref.push(new_user)
+
+    user_ref.set(user_data)
     return True
+
 
 # Input boxes
 nombre_box = InputBox(110, 150, 200, 30)
