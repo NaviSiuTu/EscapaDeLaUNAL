@@ -27,20 +27,30 @@ def authenticate_user(email, password):
         return None
 
     for _, user_data in users.items():
-        if isinstance(user_data, dict) and user_data.get('email') == email and user_data.get('Contraseña') == password:
+        if isinstance(user_data, dict) and user_data.get('email') == email and user_data.get('password') == password:
             return user_data
     return None
 
 # ============================
 # FUNCIÓN DE LOGIN
 # ============================
+def centrar_ventana(ventana, ancho=400, alto=500):
+    ventana.update_idletasks()
+    screen_width = ventana.winfo_screenwidth()
+    screen_height = ventana.winfo_screenheight()
+    x = (screen_width // 2) - (ancho // 2)
+    y = (screen_height // 2) - (alto // 2)
+    ventana.geometry(f"{ancho}x{alto}+{x}+{y}")
+
 def main():
     global root, username_entry, password_entry
 
     root = tk.Tk()
+    root.withdraw()
     root.title("Login Retro")
-    root.geometry("400x500")
     root.resizable(False, False)
+    centrar_ventana(root)
+    root.deiconify()
 
     marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
@@ -75,7 +85,7 @@ def main():
 
         user = authenticate_user(email, password)
         if user:
-            monedas = user.get('monedas') or user.get('Monedas') or 0
+            monedas = user.get('monedas') or 0
             abrir_menu_principal(user['name'], monedas)
         else:
             messagebox.showerror("Error", "Credenciales incorrectas")
@@ -92,9 +102,11 @@ def abrir_ventana_registro():
     root.destroy()
 
     ventana = tk.Tk()
+    ventana.withdraw()
     ventana.title("Registro Retro")
-    ventana.geometry("400x500")
     ventana.resizable(False, False)
+    centrar_ventana(ventana)
+    ventana.deiconify()
 
     marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
@@ -155,14 +167,14 @@ def abrir_ventana_registro():
         new_user = {
             "name": name,
             "email": email,
-            "Contraseña": password,
+            "password": password,
             "roles": ["Jugador"],
             "monedas": 100,
             "is_active": True,
             "address": {"city": city}
         }
 
-        user_id = name.replace(" ", "_")
+        user_id = name.replace(" ", "_").lower()
         try:
             db.reference(f"users/{user_id}").set(new_user)
             messagebox.showinfo("Registro Exitoso", "¡Bienvenido al laberinto!")
@@ -183,9 +195,11 @@ def abrir_menu_principal(nombre_usuario, monedas):
     root.destroy()
 
     menu = tk.Tk()
+    menu.withdraw()
     menu.title("Menú Principal")
-    menu.geometry("400x500")
     menu.resizable(False, False)
+    centrar_ventana(menu)
+    menu.deiconify()
 
     marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
@@ -222,9 +236,11 @@ def abrir_menu_principal(nombre_usuario, monedas):
 # ============================
 def abrir_menu_niveles():
     ventana = tk.Tk()
+    ventana.withdraw()
     ventana.title("Seleccionar Nivel")
-    ventana.geometry("400x500")
     ventana.resizable(False, False)
+    centrar_ventana(ventana)
+    ventana.deiconify()
 
     marco_img = Image.open("IMAGENES/Menu.png").resize((417, 497))
     marco_tk = ImageTk.PhotoImage(marco_img)
@@ -237,7 +253,17 @@ def abrir_menu_niveles():
     canvas.create_image(200, 250, image=marco_tk)
     canvas.create_image(200, 120, image=logo_tk)
 
-    tk.Label(ventana, text="SELECCIONA UN NIVEL", font=("Courier", 12, "bold"), bg="#00C000", fg="black").place(x=90, y=200)
+    # Fuente personalizada Minecraft
+    minecraft_font_path = os.path.join("Assets1", "Minecraft.ttf")
+    if os.path.exists(minecraft_font_path):
+        fuente_titulo = (minecraft_font_path, 14, "bold")
+        fuente_boton = (minecraft_font_path, 10)
+    else:
+        fuente_titulo = ("Courier", 12, "bold")
+        fuente_boton = ("Courier", 10)
+
+    # Título centrado
+    tk.Label(ventana, text="SELECCIONA UN NIVEL", font=fuente_titulo, bg="#00C000", fg="black").place(relx=0.5, y=200, anchor="center")
 
     def lanzar_nivel_alpha():
         ventana.destroy()
@@ -246,17 +272,27 @@ def abrir_menu_niveles():
         import nivel_alpha_juego
         nivel_alpha_juego.main()
 
-    tk.Button(ventana, text="NIVEL ALPHA", font=("Courier", 10, "bold"), bg="#008000", fg="white", command=lanzar_nivel_alpha).place(x=130, y=250, width=140, height=35)
-    tk.Button(ventana, text="VOLVER", font=("Courier", 10, "bold"), bg="black", fg="white", command=lambda: [ventana.destroy(), main()]).place(x=130, y=300, width=140, height=35)
+    tk.Button(
+        ventana, text="NIVEL ALPHA", font=fuente_boton,
+        bg="#006400", fg="white", activebackground="#009900", activeforeground="white",
+        command=lanzar_nivel_alpha
+    ).place(x=130, y=250, width=140, height=35)
+
+    tk.Button(
+        ventana, text="VOLVER", font=fuente_boton,
+        bg="black", fg="white", activebackground="#303030",
+        command=lambda: [ventana.destroy(), main()]
+    ).place(x=130, y=300, width=140, height=35)
 
     ventana.mainloop()
+
 
 # ============================
 # ABRIR TIENDA
 # ============================
 def abrir_tienda(nombre_usuario):
     nombre_formateado = nombre_usuario.replace(" ", "_").lower()
-    script_path = os.path.join(os.getcwd(), "tienda.py")
+    script_path = os.path.join(os.getcwd(), "INTERFAZ GRAFICA/Tienda.py")
     subprocess.Popen(["python", script_path, nombre_formateado])
 
 # ============================
@@ -264,3 +300,4 @@ def abrir_tienda(nombre_usuario):
 # ============================
 if __name__ == "__main__":
     main()
+
