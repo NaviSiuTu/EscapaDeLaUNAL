@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 from collections import Counter
 
-# Inicializar Firebase si no está
+# Inicializar Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("base-de-datos-proyecto-8b344-firebase-adminsdk-fbsvc-281358fd83.json")
     firebase_admin.initialize_app(cred, {
@@ -22,7 +22,7 @@ uid = sys.argv[1]
 ref = db.reference(f"users/{uid}/compras")
 compras_data = ref.get()
 
-# Agrupar por nombre y guardar IDs
+# Agrupar compras
 agrupados = Counter()
 id_por_item = {}
 if compras_data:
@@ -31,7 +31,7 @@ if compras_data:
         agrupados[item] += 1
         id_por_item.setdefault(item, []).append(compra_id)
 
-# Comprobar si ya se usó un poder
+# Comprobar poder activo
 poder_usado = os.path.exists("poder_activo.txt")
 
 # Pygame setup
@@ -41,11 +41,13 @@ screen = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Bolsa de Poderes")
 font = pygame.font.Font("Assets1/Minecraft.ttf", 16)
 
+# Colores
 VERDE = (0, 255, 0)
 GRIS = (120, 120, 120)
 NEGRO = (0, 0, 0)
 AZUL = (0, 200, 255)
 ROJO = (255, 0, 0)
+FONDO = (10, 30, 10)
 
 # Botones
 boton_volver = pygame.Rect(ANCHO//2 - 60, ALTO - 50, 120, 35)
@@ -58,7 +60,50 @@ for i, (item, cantidad) in enumerate(poderes):
 clock = pygame.time.Clock()
 running = True
 
+def dibujar_pantalla():
+    screen.fill(FONDO)
 
+    # Título
+    pygame.draw.rect(screen, VERDE, (20, 20, 360, 40), border_radius=6)
+    texto = font.render("BOLSA DE PODERES", True, (255, 255, 255))
+    screen.blit(texto, (ANCHO//2 - texto.get_width()//2, 30))
+
+    # Poderes
+    for rect, item, cantidad in botones_poderes:
+        color = GRIS if poder_usado else VERDE
+        pygame.draw.rect(screen, color, rect, border_radius=6)
+        pygame.draw.rect(screen, NEGRO, rect, 2, border_radius=6)
+        texto = font.render(f"{item} x{cantidad}", True, NEGRO)
+        screen.blit(texto, (rect.centerx - texto.get_width()//2, rect.centery - texto.get_height()//2))
+
+    # Botón Volver
+    pygame.draw.rect(screen, AZUL, boton_volver, border_radius=6)
+    pygame.draw.rect(screen, NEGRO, boton_volver, 2, border_radius=6)
+    volver_txt = font.render("VOLVER", True, NEGRO)
+    screen.blit(volver_txt, (boton_volver.centerx - volver_txt.get_width()//2,
+                             boton_volver.centery - volver_txt.get_height()//2))
+
+# Animación entrada
+def animacion_entrada():
+    paso = 20
+    for ancho in range(ANCHO // 2, -1, -paso):
+        dibujar_pantalla()
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, ALTO))  # Izquierda
+        pygame.draw.rect(screen, NEGRO, (ANCHO - ancho, 0, ancho, ALTO))  # Derecha
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+# Animación salida
+def animacion_salida():
+    paso = 20
+    for ancho in range(0, ANCHO // 2 + paso, paso):
+        dibujar_pantalla()
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, ALTO))  # Izquierda
+        pygame.draw.rect(screen, NEGRO, (ANCHO - ancho, 0, ancho, ALTO))  # Derecha
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+# Confirmación al usar poder
 def mostrar_confirmacion(item):
     confirmando = True
     confirm_rect = pygame.Rect(50, 200, 300, 160)
@@ -66,6 +111,7 @@ def mostrar_confirmacion(item):
     no_btn = pygame.Rect(220, 300, 100, 35)
 
     while confirmando:
+        dibujar_pantalla()
         pygame.draw.rect(screen, (30, 30, 30), confirm_rect, border_radius=8)
         pygame.draw.rect(screen, VERDE, si_btn, border_radius=6)
         pygame.draw.rect(screen, ROJO, no_btn, border_radius=6)
@@ -92,38 +138,24 @@ def mostrar_confirmacion(item):
 
         clock.tick(30)
 
+# Mostrar pantalla y animación de entrada
+dibujar_pantalla()
+pygame.display.flip()
+animacion_entrada()
 
+# Bucle principal
 while running:
-    screen.fill((10, 30, 10))
-
-    # Título
-    pygame.draw.rect(screen, VERDE, (20, 20, 360, 40), border_radius=6)
-    texto = font.render("BOLSA DE PODERES", True, (255, 255, 255))
-    screen.blit(texto, (ANCHO//2 - texto.get_width()//2, 30))
-
-    # Dibujar poderes
-    for rect, item, cantidad in botones_poderes:
-        color = GRIS if poder_usado else VERDE
-        pygame.draw.rect(screen, color, rect, border_radius=6)
-        pygame.draw.rect(screen, NEGRO, rect, 2, border_radius=6)
-        texto = font.render(f"{item} x{cantidad}", True, NEGRO)
-        screen.blit(texto, (rect.centerx - texto.get_width()//2, rect.centery - texto.get_height()//2))
-
-    # Botón Volver
-    pygame.draw.rect(screen, AZUL, boton_volver, border_radius=6)
-    pygame.draw.rect(screen, NEGRO, boton_volver, 2, border_radius=6)
-    volver_txt = font.render("VOLVER", True, NEGRO)
-    screen.blit(volver_txt, (boton_volver.centerx - volver_txt.get_width()//2,
-                             boton_volver.centery - volver_txt.get_height()//2))
-
+    dibujar_pantalla()
     pygame.display.flip()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            animacion_salida()
             running = False
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if boton_volver.collidepoint(event.pos):
+                animacion_salida()
                 running = False
 
             elif not poder_usado:
@@ -135,12 +167,14 @@ while running:
                                 f.write(item)
                             primer_id = id_por_item[item][0]
                             db.reference(f"users/{uid}/compras/{primer_id}").delete()
+                            animacion_salida()
                             running = False
                             break
 
     clock.tick(30)
 
 pygame.quit()
+
 
 
 

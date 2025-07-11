@@ -5,7 +5,19 @@ from firebase_admin import credentials, db
 import os
 import sys
 
-# Inicializar Firebase
+# Mostrar splash solo si no se ha mostrado
+if not os.environ.get("SPLASH_DONE"):
+    from splash_animacion import mostrar_splash_animado
+    pygame.init()
+    WIDTH, HEIGHT = 417, 497
+    icono = pygame.image.load("IMAGENES/Menu (1).png")
+    pygame.display.set_icon(icono)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Login Retro")
+    mostrar_splash_animado(screen, "IMAGENES/Splashjiji.gif", WIDTH, HEIGHT)
+    os.environ["SPLASH_DONE"] = "1"
+
+# Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("base-de-datos-proyecto-8b344-firebase-adminsdk-fbsvc-281358fd83.json")
     firebase_admin.initialize_app(cred, {
@@ -27,13 +39,36 @@ font_path = os.path.join("Assets1", "Minecraft.ttf")
 font = pygame.font.Font(font_path, 16)
 font_small = pygame.font.Font(font_path, 12)
 
-# Cargar imágenes
+# Imágenes
 fondo = pygame.image.load("IMAGENES/Menu.png")
 fondo = pygame.transform.scale(fondo, (WIDTH, HEIGHT))
 logo = pygame.image.load("IMAGENES/Menu (1).png")
 logo = pygame.transform.scale(logo, (130, 130))
+logo_rect = logo.get_rect(center=(WIDTH // 2, 100))
 
-# Clase de entrada de texto
+# 🎮 Cortinas
+
+def cortina_entrada():
+    paso = 20
+    for ancho in range(WIDTH // 2, -1, -paso):
+        screen.blit(fondo, (0, 0))
+        screen.blit(logo, logo_rect)
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+def cortina_salida():
+    paso = 20
+    for ancho in range(0, WIDTH // 2 + paso, paso):
+        screen.blit(fondo, (0, 0))
+        screen.blit(logo, logo_rect)
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+# Caja de texto
 class InputBox:
     def __init__(self, x, y, w, h, text='', password=False):
         self.rect = pygame.Rect(x, y, w, h)
@@ -102,16 +137,18 @@ def mostrar_mensaje(texto):
     screen.blit(mensaje, (WIDTH // 2 - mensaje.get_width() // 2, 440))
 
 def abrir_registro():
+    cortina_salida()
     pygame.quit()
     os.system("python CONPY/registro_pygame.py")
     sys.exit()
 
 def abrir_menu(usuario_id):
+    cortina_salida()
     pygame.quit()
     os.system(f"python CONPY/menu_pygame.py {usuario_id}")
     sys.exit()
 
-# Cajas de texto
+# Entradas
 email_box = InputBox(110, 190, 200, 30)
 pass_box = InputBox(110, 240, 200, 30, password=True)
 
@@ -119,25 +156,27 @@ clock = pygame.time.Clock()
 error_texto = ''
 running = True
 
+# Lanzar cortina de entrada
+screen.blit(fondo, (0, 0))
+screen.blit(logo, logo_rect)
+pygame.display.flip()
+cortina_entrada()
+
+# Loop principal
 while running:
     mouse_pos = pygame.mouse.get_pos()
     screen.blit(fondo, (0, 0))
-
-    screen.blit(logo, (WIDTH // 2 - logo.get_width() // 2, 40))
-
+    screen.blit(logo, logo_rect)
     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
-    # Etiquetas
     screen.blit(font_small.render("EMAIL", True, NEGRO), (110, 175))
     screen.blit(font_small.render("PASSWORD", True, NEGRO), (110, 225))
 
-    # Cajas de entrada
     email_box.update(mouse_pos)
     pass_box.update(mouse_pos)
     email_box.draw(screen)
     pass_box.draw(screen)
 
-    # Botón LOGIN
     login_rect = pygame.Rect(150, 330, 100, 35)
     login_hover = login_rect.collidepoint(mouse_pos)
     login_color = (50, 50, 50) if login_hover else NEGRO
@@ -145,7 +184,6 @@ while running:
     login_text = font_small.render("LOGIN", True, BLANCO)
     screen.blit(login_text, (login_rect.centerx - login_text.get_width() // 2, login_rect.centery - 10))
 
-    # Botón REGISTRARSE
     reg_rect = pygame.Rect(130, 380, 140, 35)
     reg_hover = reg_rect.collidepoint(mouse_pos)
     reg_color = (50, 50, 50) if reg_hover else NEGRO
@@ -153,7 +191,6 @@ while running:
     reg_text = font_small.render("REGISTRARSE", True, BLANCO)
     screen.blit(reg_text, (reg_rect.centerx - reg_text.get_width() // 2, reg_rect.centery - 10))
 
-    # Mensaje de error
     if error_texto:
         mostrar_mensaje(error_texto)
 
@@ -171,7 +208,7 @@ while running:
                 password = pass_box.get_text()
 
                 if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
-                    error_texto = "Email invalido"
+                    error_texto = "Email inválido"
                     continue
                 if not re.match(r"^[A-Za-z0-9]+$", password):
                     error_texto = "Password sin caracteres especiales"
@@ -189,6 +226,13 @@ while running:
     clock.tick(30)
 
 pygame.quit()
+
+
+
+
+
+
+
 
 
 

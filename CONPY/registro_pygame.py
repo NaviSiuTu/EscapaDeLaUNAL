@@ -32,12 +32,47 @@ fondo = pygame.image.load("IMAGENES/Menu.png")
 fondo = pygame.transform.scale(fondo, (WIDTH, HEIGHT))
 
 logo = pygame.image.load("IMAGENES/Menu (1).png")
-logo = pygame.transform.scale(logo, (100, 100 ))
-logo_rect = logo.get_rect(center=(WIDTH // 2, 90))  # ✅ Centramos el logo
+logo = pygame.transform.scale(logo, (100, 100))
+logo_rect = logo.get_rect(center=(WIDTH // 2, 90))
 
-# InputBox class
+# 🎬 Efecto cortina de entrada
+def cortina_entrada(screen, fondo, logo, logo_rect):
+    paso = 20
+    for ancho in range(WIDTH // 2, -1, -paso):
+        screen.blit(fondo, (0, 0))
+        screen.blit(logo, logo_rect)
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))  # Izquierda
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))  # Derecha
+        pygame.display.flip()
+        pygame.time.delay(20)
 
+# 🎬 Efecto cortina de salida
+def cortina_salida(screen, fondo, logo, logo_rect):
+    paso = 20
+    for ancho in range(0, WIDTH // 2 + paso, paso):
+        screen.blit(fondo, (0, 0))
+        screen.blit(logo, logo_rect)
 
+        # Dibujar etiquetas e inputs mientras se cierra
+        screen.blit(font_small.render("NOMBRE", True, NEGRO), (110, 135))
+        screen.blit(font_small.render("EMAIL", True, NEGRO), (110, 185))
+        screen.blit(font_small.render("PASSWORD", True, NEGRO), (110, 235))
+        screen.blit(font_small.render("CIUDAD", True, NEGRO), (110, 285))
+
+        for box in [nombre_box, email_box, pass_box, ciudad_box]:
+            box.draw(screen)
+
+        pygame.draw.rect(screen, NEGRO, reg_rect)
+        pygame.draw.rect(screen, ROJO, volver_rect)
+        screen.blit(font_small.render("REGISTRAR", True, BLANCO), (reg_rect.centerx - 40, reg_rect.centery - 8))
+        screen.blit(font_small.render("VOLVER", True, BLANCO), (volver_rect.centerx - 30, volver_rect.centery - 8))
+
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))  # Izquierda
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))  # Derecha
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+# Clase InputBox
 class InputBox:
     def __init__(self, x, y, w, h, text=''):
         self.rect = pygame.Rect(x, y, w, h)
@@ -46,6 +81,8 @@ class InputBox:
         self.color = self.base_color
         self.text = text
         self.active = False
+        self.padding = 5
+        self.font = font
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -63,99 +100,98 @@ class InputBox:
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
-        txt = font.render(self.text, True, NEGRO)
-        screen.blit(txt, (self.rect.x + 5, self.rect.y + 5))
 
-        border_width = 3 if self.active else 2
-        pygame.draw.rect(screen, NEGRO, self.rect, border_width)
+        # Render y recorte si es necesario
+        text_surface = self.font.render(self.text, True, NEGRO)
+        max_width = self.rect.width - 2 * self.padding
+
+        if text_surface.get_width() > max_width:
+            cropped_text = self.text
+            while self.font.size(cropped_text)[0] > max_width and len(cropped_text) > 0:
+                cropped_text = cropped_text[1:]
+            text_surface = self.font.render(cropped_text, True, NEGRO)
+        else:
+            cropped_text = self.text
+
+        screen.blit(text_surface, (self.rect.x + self.padding, self.rect.y + self.padding))
+        pygame.draw.rect(screen, NEGRO, self.rect, 3 if self.active else 2)
 
     def get_text(self):
         return self.text.strip()
 
-
-
-
-# Ir a login
+# Ir a login con salida animada
 def volver_login():
+    cortina_salida(screen, fondo, logo, logo_rect)
     pygame.quit()
+    os.environ["SPLASH_DONE"] = "1"
     os.system("python CONPY/login_pygame.py")
 
-# Firebase registrar
+# Registrar usuario en Firebase
 def registrar_usuario(nombre, email, password, ciudad):
     ref = db.reference("users")
-    username = email.split("@")[0]  # Ej: ivan_santisteban
+    username = email.split("@")[0]
     user_ref = ref.child(username)
-    
-    # Validar si ya existe
     if user_ref.get() is not None:
         return False
-    
-    user_data = {
+    user_ref.set({
         "name": nombre,
         "email": email,
         "password": password,
         "is_active": True,
         "monedas": 400,
-        "compras": {}  # Diccionario vacío
-    }
-
-    user_ref.set(user_data)
+        "compras": {}
+    })
     return True
 
-
-# Input boxes
+# Cajas de texto
 nombre_box = InputBox(110, 150, 200, 30)
 email_box = InputBox(110, 200, 200, 30)
 pass_box = InputBox(110, 250, 200, 30)
 ciudad_box = InputBox(110, 300, 200, 30)
 
+reg_rect = pygame.Rect(WIDTH//2 - 60, 350, 120, 35)
+volver_rect = pygame.Rect(WIDTH//2 - 60, 400, 120, 35)
+
 clock = pygame.time.Clock()
 mensaje_error = ''
-running = True
 
+# Entrada
+cortina_entrada(screen, fondo, logo, logo_rect)
+
+running = True
 while running:
     screen.blit(fondo, (0, 0))
-    screen.blit(logo, logo_rect)  # ✅ Logo centrado arriba
+    screen.blit(logo, logo_rect)
     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-
     mouse_pos = pygame.mouse.get_pos()
 
-    # Etiquetas
     screen.blit(font_small.render("NOMBRE", True, NEGRO), (110, 135))
     screen.blit(font_small.render("EMAIL", True, NEGRO), (110, 185))
-    screen.blit(font_small.render("CONTRASEÑA", True, NEGRO), (110, 235))
+    screen.blit(font_small.render("PASSWORD", True, NEGRO), (110, 235))
     screen.blit(font_small.render("CIUDAD", True, NEGRO), (110, 285))
 
-    # Inputs
     for box in [nombre_box, email_box, pass_box, ciudad_box]:
         box.update(mouse_pos)
         box.draw(screen)
 
-    # Botón REGISTRAR
-    reg_rect = pygame.Rect(WIDTH//2 - 60, 350, 120, 35)
-    reg_hover = reg_rect.collidepoint(mouse_pos)
     pygame.draw.rect(screen, NEGRO, reg_rect)
-    screen.blit(font_small.render("REGISTRAR", True, BLANCO),
-                (reg_rect.centerx - 40, reg_rect.centery - 8))
+    pygame.draw.rect(screen, ROJO if volver_rect.collidepoint(mouse_pos) else (180, 0, 0), volver_rect)
 
-    # Botón VOLVER
-    volver_rect = pygame.Rect(WIDTH//2 - 60, 400, 120, 35)
-    volver_hover = volver_rect.collidepoint(mouse_pos)
-    pygame.draw.rect(screen, ROJO if volver_hover else (180, 0, 0), volver_rect)
-    screen.blit(font_small.render("VOLVER", True, BLANCO),
-                (volver_rect.centerx - 30, volver_rect.centery - 8))
+    screen.blit(font_small.render("REGISTRAR", True, BLANCO), (reg_rect.centerx - 40, reg_rect.centery - 8))
+    screen.blit(font_small.render("VOLVER", True, BLANCO), (volver_rect.centerx - 30, volver_rect.centery - 8))
 
-    # Mensaje
     if mensaje_error:
         msg_surface = font_small.render(mensaje_error, True, ROJO)
         screen.blit(msg_surface, (WIDTH // 2 - msg_surface.get_width() // 2, 450))
 
-    # Eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            cortina_salida(screen, fondo, logo, logo_rect)
             running = False
+
         for box in [nombre_box, email_box, pass_box, ciudad_box]:
             box.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if reg_rect.collidepoint(event.pos):
                 nombre = nombre_box.get_text()
@@ -163,8 +199,7 @@ while running:
                 password = pass_box.get_text()
                 ciudad = ciudad_box.get_text()
                 if nombre and email and password and ciudad:
-                    exito = registrar_usuario(nombre, email, password, ciudad)
-                    if exito:
+                    if registrar_usuario(nombre, email, password, ciudad):
                         mensaje_error = "¡Registrado con éxito!"
                     else:
                         mensaje_error = "Email ya registrado."
@@ -177,6 +212,8 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
+
 
 
 
