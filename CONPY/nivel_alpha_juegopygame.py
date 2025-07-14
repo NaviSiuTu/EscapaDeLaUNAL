@@ -293,6 +293,123 @@ def mostrar_game_over():
                     os.system(f"python CONPY/niveles_pygame.py {uid}")
                     sys.exit()
 
+def cortina_entrada(surface, fondo):
+    paso = 20
+    for ancho in range(Ventana_Ancho // 2, -1, -paso):
+        surface.blit(fondo, (0, 0))
+        pygame.draw.rect(surface, (0, 0, 0), (0, 0, ancho, Ventana_Altura))
+        pygame.draw.rect(surface, (0, 0, 0), (Ventana_Ancho - ancho, 0, ancho, Ventana_Altura))
+        pygame.display.flip()
+        pygame.time.delay(20)
+
+def mostrar_pantalla_inicio():
+    frases_buho = [
+        "Ey, ya calentaste motores o todavia estas en Bienestar?",
+        "Trajiste la tula o vienes sin poderes?",
+        "Hoy si le das con toda... o te devuelves al menu?",
+        "Pilas, que esta cabra no se doma con un cafecito.",
+        "Esto no es clase, aqui si te toca correr.",
+        "Con fe, como buscando cupo en electiva libre.",
+        "Ni el de fisica II corre tan rapido como la cabra.",
+        "Que no se diga que lo tuyo fue relleno.",
+        "Un paso mas y te graduas del Nivel Alpha... o no.",
+        "No hay simulacro aqui, solo fuego real.",
+        "Estas mas listo que cafeteria a las 7 a.m.?",
+        "Te crees el mas teso? La cabra tambien.",
+        "Aqui no hay recuperatorio, solo una vida."
+    ]
+
+    fondo = pygame.image.load("Assets1/pixil-frame-02 (2).png").convert()
+    fondo = pygame.transform.scale(fondo, (Ventana_Ancho, Ventana_Altura))
+
+    buho_inicio = pygame.image.load("Assets1/Buho test.png").convert_alpha()
+    buho_inicio = pygame.transform.scale(buho_inicio, (80, 80))
+
+    # Fondo negro base
+    Display_Surface.fill((0, 0, 0))
+
+    # Cortina de entrada
+    cortina_entrada(Display_Surface, fondo)
+
+    frase = random.choice(frases_buho)
+    esperando = True
+
+    while esperando:
+        Display_Surface.blit(fondo, (0, 0))
+
+        # Posiciones
+        buho_x = 60
+        buho_y = Ventana_Altura // 2 - 50
+
+        caja_x = buho_x + 90
+        caja_y = buho_y + 10
+        caja_w = Ventana_Ancho - caja_x - 30
+        caja_h = 80
+
+        # Dibujar buho
+        Display_Surface.blit(buho_inicio, (buho_x, buho_y))
+
+        # Caja de texto
+        pygame.draw.rect(Display_Surface, (0, 0, 0), (caja_x, caja_y, caja_w, caja_h))
+        pygame.draw.rect(Display_Surface, (255, 255, 255), (caja_x, caja_y, caja_w, caja_h), 2)
+
+        # Frase
+        palabras = frase.split()
+        lineas = []
+        linea_actual = ""
+        for palabra in palabras:
+            test = linea_actual + palabra + " "
+            if font.size(test)[0] < caja_w - 20:
+                linea_actual = test
+            else:
+                lineas.append(linea_actual)
+                linea_actual = palabra + " "
+        lineas.append(linea_actual)
+
+        for i, linea in enumerate(lineas[:3]):
+            texto = font.render(linea.strip(), True, (255, 255, 255))
+            Display_Surface.blit(texto, (caja_x + 10, caja_y + 10 + i * 22))
+
+        # Titulo
+        titulo = font.render("Estas listo para comenzar?", True, (255, 255, 255))
+        Display_Surface.blit(titulo, (Ventana_Ancho // 2 - titulo.get_width() // 2, 80))
+
+        # Botones
+        boton_jugar = pygame.Rect(Ventana_Ancho // 2 - 120, Ventana_Altura - 140, 100, 40)
+        boton_volver = pygame.Rect(Ventana_Ancho // 2 + 20, Ventana_Altura - 140, 100, 40)
+
+        pygame.draw.rect(Display_Surface, (0, 255, 0), boton_jugar)
+        pygame.draw.rect(Display_Surface, (255, 0, 0), boton_volver)
+
+        txt_jugar = font.render("JUGAR", True, (0, 0, 0))
+        txt_volver = font.render("VOLVER", True, (0, 0, 0))
+
+        Display_Surface.blit(txt_jugar, (boton_jugar.centerx - txt_jugar.get_width() // 2,
+                                         boton_jugar.centery - txt_jugar.get_height() // 2))
+        Display_Surface.blit(txt_volver, (boton_volver.centerx - txt_volver.get_width() // 2,
+                                          boton_volver.centery - txt_volver.get_height() // 2))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if boton_jugar.collidepoint(event.pos):
+                    # Cortina salida
+                    for ancho in range(0, Ventana_Ancho // 2 + 20, 20):
+                        Display_Surface.blit(fondo, (0, 0))
+                        pygame.draw.rect(Display_Surface, (0, 0, 0), (0, 0, ancho, Ventana_Altura))
+                        pygame.draw.rect(Display_Surface, (0, 0, 0), (Ventana_Ancho - ancho, 0, ancho, Ventana_Altura))
+                        pygame.display.flip()
+                        pygame.time.delay(20)
+                    esperando = False
+                elif boton_volver.collidepoint(event.pos):
+                    pygame.quit()
+                    os.system(f"python CONPY/niveles_pygame.py {uid}")
+                    sys.exit()
+
 # =================== MAIN ===================
 def main():
     global poder_tinto, poder_tula, poder_sticker
@@ -371,7 +488,9 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
+    mostrar_pantalla_inicio()
     main()
+
 
 
 
