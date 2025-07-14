@@ -2,6 +2,8 @@ import pygame
 import os
 import firebase_admin
 from firebase_admin import credentials, db
+import re
+import sys
 
 # Firebase init
 if not firebase_admin._apps:
@@ -28,10 +30,9 @@ font = pygame.font.Font(font_path, 16)
 font_small = pygame.font.Font(font_path, 12)
 
 # Fondo y logo
-fondo = pygame.image.load("IMAGENES/Menu.png")
+fondo = pygame.image.load("Assets1/Menu.png")
 fondo = pygame.transform.scale(fondo, (WIDTH, HEIGHT))
-
-logo = pygame.image.load("IMAGENES/Menu (1).png")
+logo = pygame.image.load("Assets1/Menu (1).png")
 logo = pygame.transform.scale(logo, (100, 100))
 logo_rect = logo.get_rect(center=(WIDTH // 2, 90))
 
@@ -53,7 +54,6 @@ def cortina_salida(screen, fondo, logo, logo_rect):
         screen.blit(fondo, (0, 0))
         screen.blit(logo, logo_rect)
 
-        # Dibujar etiquetas e inputs mientras se cierra
         screen.blit(font_small.render("NOMBRE", True, NEGRO), (110, 135))
         screen.blit(font_small.render("EMAIL", True, NEGRO), (110, 185))
         screen.blit(font_small.render("PASSWORD", True, NEGRO), (110, 235))
@@ -100,19 +100,14 @@ class InputBox:
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
-
-        # Render y recorte si es necesario
         text_surface = self.font.render(self.text, True, NEGRO)
         max_width = self.rect.width - 2 * self.padding
+        cropped_text = self.text
 
-        if text_surface.get_width() > max_width:
-            cropped_text = self.text
-            while self.font.size(cropped_text)[0] > max_width and len(cropped_text) > 0:
-                cropped_text = cropped_text[1:]
-            text_surface = self.font.render(cropped_text, True, NEGRO)
-        else:
-            cropped_text = self.text
+        while self.font.size(cropped_text)[0] > max_width and len(cropped_text) > 0:
+            cropped_text = cropped_text[1:]
 
+        text_surface = self.font.render(cropped_text, True, NEGRO)
         screen.blit(text_surface, (self.rect.x + self.padding, self.rect.y + self.padding))
         pygame.draw.rect(screen, NEGRO, self.rect, 3 if self.active else 2)
 
@@ -149,8 +144,8 @@ email_box = InputBox(110, 200, 200, 30)
 pass_box = InputBox(110, 250, 200, 30)
 ciudad_box = InputBox(110, 300, 200, 30)
 
-reg_rect = pygame.Rect(WIDTH//2 - 60, 350, 120, 35)
-volver_rect = pygame.Rect(WIDTH//2 - 60, 400, 120, 35)
+reg_rect = pygame.Rect(WIDTH // 2 - 60, 350, 120, 35)
+volver_rect = pygame.Rect(WIDTH // 2 - 60, 400, 120, 35)
 
 clock = pygame.time.Clock()
 mensaje_error = ''
@@ -198,13 +193,20 @@ while running:
                 email = email_box.get_text()
                 password = pass_box.get_text()
                 ciudad = ciudad_box.get_text()
+
                 if nombre and email and password and ciudad:
-                    if registrar_usuario(nombre, email, password, ciudad):
-                        mensaje_error = "¡Registrado con éxito!"
+                    if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
+                        mensaje_error = "Email inválido"
+                    elif not re.match(r"^[A-Za-z0-9]+$", password):
+                        mensaje_error = "Password sin caracteres especiales"
                     else:
-                        mensaje_error = "Email ya registrado."
+                        if registrar_usuario(nombre, email, password, ciudad):
+                            mensaje_error = "¡Registrado con éxito!"
+                        else:
+                            mensaje_error = "Email ya registrado."
                 else:
                     mensaje_error = "Completa todos los campos."
+
             elif volver_rect.collidepoint(event.pos):
                 volver_login()
 
@@ -212,6 +214,7 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
 
 
 

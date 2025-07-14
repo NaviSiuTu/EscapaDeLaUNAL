@@ -10,11 +10,11 @@ if not os.environ.get("SPLASH_DONE"):
     from splash_animacion import mostrar_splash_animado
     pygame.init()
     WIDTH, HEIGHT = 417, 497
-    icono = pygame.image.load("IMAGENES/Menu (1).png")
+    icono = pygame.image.load("Assets1/Menu (1).png")
     pygame.display.set_icon(icono)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Login Retro")
-    mostrar_splash_animado(screen, "IMAGENES/Splashjiji.gif", WIDTH, HEIGHT)
+    mostrar_splash_animado(screen, "Assets1/Splashjiji.gif", WIDTH, HEIGHT)
     os.environ["SPLASH_DONE"] = "1"
 
 # Firebase
@@ -40,9 +40,9 @@ font = pygame.font.Font(font_path, 16)
 font_small = pygame.font.Font(font_path, 12)
 
 # Imágenes
-fondo = pygame.image.load("IMAGENES/Menu.png")
+fondo = pygame.image.load("Assets1/Menu.png")
 fondo = pygame.transform.scale(fondo, (WIDTH, HEIGHT))
-logo = pygame.image.load("IMAGENES/Menu (1).png")
+logo = pygame.image.load("Assets1/Menu (1).png")
 logo = pygame.transform.scale(logo, (130, 130))
 logo_rect = logo.get_rect(center=(WIDTH // 2, 100))
 

@@ -65,13 +65,14 @@ mostrar_dialogo = True
 
 # Botones
 boton_nivel_alpha = pygame.Rect(WIDTH//2 - 110, 220, 220, 45)
-boton_bolsa = pygame.Rect(WIDTH//2 - 110, 290, 220, 45)
-boton_volver = pygame.Rect(WIDTH//2 - 90, 370, 180, 40)
+boton_nivel_beta = pygame.Rect(WIDTH//2 - 110, 270, 220, 45)
+boton_bolsa = pygame.Rect(WIDTH//2 - 110, 340, 220, 45)
+boton_volver = pygame.Rect(WIDTH//2 - 90, 420, 180, 40)
 
 clock = pygame.time.Clock()
 running = True
 
-# Función para renderizar texto en varias líneas
+# Funciones
 def render_texto_multilinea(texto, fuente, color, ancho_max):
     palabras = texto.split()
     lineas = []
@@ -87,30 +88,26 @@ def render_texto_multilinea(texto, fuente, color, ancho_max):
     superficies = [fuente.render(linea.strip(), True, color) for linea in lineas]
     return superficies
 
-# Animación de entrada con elementos visibles
 def animacion_entrada():
     paso = 10
     for ancho in range(WIDTH // 2, -1, -paso):
-        # Fondo
         screen.blit(fondo, (0, 0))
-
-        # Búho
         screen.blit(buho_img, buho_rect)
-
-        # Encabezado
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
-
-        # Título
         titulo = fuente_big.render("SELECCION DE NIVELES", True, BLANCO)
         screen.blit(titulo, (WIDTH//2 - titulo.get_width()//2, 80))
 
-        # Botones
         pygame.draw.rect(screen, AZUL, boton_nivel_alpha, border_radius=8)
         pygame.draw.rect(screen, NEGRO, boton_nivel_alpha, 2, border_radius=8)
         screen.blit(fuente.render("NIVEL ALPHA", True, NEGRO),
                     (boton_nivel_alpha.centerx - 55, boton_nivel_alpha.centery - 10))
+
+        pygame.draw.rect(screen, AZUL, boton_nivel_beta, border_radius=8)
+        pygame.draw.rect(screen, NEGRO, boton_nivel_beta, 2, border_radius=8)
+        screen.blit(fuente.render("NIVEL BETA", True, NEGRO),
+                    (boton_nivel_beta.centerx - 50, boton_nivel_beta.centery - 10))
 
         pygame.draw.rect(screen, AMARILLO_OSCURO, boton_bolsa, border_radius=8)
         pygame.draw.rect(screen, NEGRO, boton_bolsa, 2, border_radius=8)
@@ -122,7 +119,6 @@ def animacion_entrada():
         screen.blit(fuente.render("VOLVER AL MENU", True, NEGRO),
                     (boton_volver.centerx - 70, boton_volver.centery - 10))
 
-        # Diálogo
         if mostrar_dialogo:
             cuadro = pygame.Rect(60, HEIGHT - 60, 340, 45)
             pygame.draw.rect(screen, NEGRO, cuadro, border_radius=6)
@@ -131,37 +127,32 @@ def animacion_entrada():
             for i, linea_surface in enumerate(texto_lineas):
                 screen.blit(linea_surface, (cuadro.x + 10, cuadro.y + 8 + i * 18))
 
-        # Cortinas negras
-        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))  # Izquierda
-        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))  # Derecha
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
         pygame.display.flip()
         pygame.time.delay(25)
 
-# Animación de salida (idéntica a antes)
 def animacion_salida():
     paso = 20
     for ancho in range(0, WIDTH // 2 + paso, paso):
-        # Fondo
         screen.blit(fondo, (0, 0))
-
-        # Búho
         screen.blit(buho_img, buho_rect)
-
-        # Encabezado
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
-
-        # Título
         titulo = fuente_big.render("SELECCION DE NIVELES", True, BLANCO)
         screen.blit(titulo, (WIDTH//2 - titulo.get_width()//2, 80))
 
-        # Botones
         pygame.draw.rect(screen, AZUL, boton_nivel_alpha, border_radius=8)
         pygame.draw.rect(screen, NEGRO, boton_nivel_alpha, 2, border_radius=8)
         screen.blit(fuente.render("NIVEL ALPHA", True, NEGRO),
                     (boton_nivel_alpha.centerx - 55, boton_nivel_alpha.centery - 10))
+
+        pygame.draw.rect(screen, AZUL, boton_nivel_beta, border_radius=8)
+        pygame.draw.rect(screen, NEGRO, boton_nivel_beta, 2, border_radius=8)
+        screen.blit(fuente.render("NIVEL BETA", True, NEGRO),
+                    (boton_nivel_beta.centerx - 50, boton_nivel_beta.centery - 10))
 
         pygame.draw.rect(screen, AMARILLO_OSCURO, boton_bolsa, border_radius=8)
         pygame.draw.rect(screen, NEGRO, boton_bolsa, 2, border_radius=8)
@@ -173,7 +164,6 @@ def animacion_salida():
         screen.blit(fuente.render("VOLVER AL MENU", True, NEGRO),
                     (boton_volver.centerx - 70, boton_volver.centery - 10))
 
-        # Diálogo
         if mostrar_dialogo:
             cuadro = pygame.Rect(60, HEIGHT - 60, 340, 45)
             pygame.draw.rect(screen, NEGRO, cuadro, border_radius=6)
@@ -182,13 +172,11 @@ def animacion_salida():
             for i, linea_surface in enumerate(texto_lineas):
                 screen.blit(linea_surface, (cuadro.x + 10, cuadro.y + 8 + i * 18))
 
-        # Cortinas negras
-        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))  # Izquierda
-        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))  # Derecha
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
         pygame.display.flip()
         pygame.time.delay(20)
-
 
 # Mostrar pantalla inicial con animación
 screen.blit(fondo, (0, 0))
@@ -209,29 +197,19 @@ while running:
     titulo = fuente_big.render("SELECCION DE NIVELES", True, BLANCO)
     screen.blit(titulo, (WIDTH//2 - titulo.get_width()//2, 80))
 
-    # Botón Nivel Alpha
-    color_alpha = AZUL_HOVER if boton_nivel_alpha.collidepoint(mouse_pos) else AZUL
-    pygame.draw.rect(screen, color_alpha, boton_nivel_alpha, border_radius=8)
-    pygame.draw.rect(screen, NEGRO, boton_nivel_alpha, 2, border_radius=8)
-    texto_alpha = fuente.render("NIVEL ALPHA", True, NEGRO)
-    screen.blit(texto_alpha, (boton_nivel_alpha.centerx - texto_alpha.get_width() // 2,
-                               boton_nivel_alpha.centery - texto_alpha.get_height() // 2))
-
-    # Botón Bolsa
-    color_bolsa = AMARILLO if boton_bolsa.collidepoint(mouse_pos) else AMARILLO_OSCURO
-    pygame.draw.rect(screen, color_bolsa, boton_bolsa, border_radius=8)
-    pygame.draw.rect(screen, NEGRO, boton_bolsa, 2, border_radius=8)
-    texto_bolsa = fuente.render("BOLSA DE PODERES", True, NEGRO)
-    screen.blit(texto_bolsa, (boton_bolsa.centerx - texto_bolsa.get_width() // 2,
-                               boton_bolsa.centery - texto_bolsa.get_height() // 2))
-
-    # Botón Volver
-    color_volver = VERDE_HOVER if boton_volver.collidepoint(mouse_pos) else VERDE
-    pygame.draw.rect(screen, color_volver, boton_volver, border_radius=8)
-    pygame.draw.rect(screen, NEGRO, boton_volver, 2, border_radius=8)
-    texto_volver = fuente.render("VOLVER AL MENU", True, NEGRO)
-    screen.blit(texto_volver, (boton_volver.centerx - texto_volver.get_width() // 2,
-                                boton_volver.centery - texto_volver.get_height() // 2))
+    # Botones con hover
+    for boton, texto, color_normal, color_hover in [
+        (boton_nivel_alpha, "NIVEL ALPHA", AZUL, AZUL_HOVER),
+        (boton_nivel_beta, "NIVEL BETA", AZUL, AZUL_HOVER),
+        (boton_bolsa, "BOLSA DE PODERES", AMARILLO_OSCURO, AMARILLO),
+        (boton_volver, "VOLVER AL MENU", VERDE, VERDE_HOVER)
+    ]:
+        color = color_hover if boton.collidepoint(mouse_pos) else color_normal
+        pygame.draw.rect(screen, color, boton, border_radius=8)
+        pygame.draw.rect(screen, NEGRO, boton, 2, border_radius=8)
+        texto_render = fuente.render(texto, True, NEGRO)
+        screen.blit(texto_render, (boton.centerx - texto_render.get_width() // 2,
+                                   boton.centery - texto_render.get_height() // 2))
 
     # Búho y diálogo
     screen.blit(buho_img, buho_rect)
@@ -250,26 +228,33 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if boton_nivel_alpha.collidepoint(event.pos):
                 animacion_salida()
-                pygame.quit()
-                os.system(f'python "CONPY/nivel_alpha_juegopygame.py" {uid}')
+                pygame.display.quit()
+                os.system(f'python "NIVELES Y BOARD/nivel_alpha_juegopygame.py" {uid}')
                 sys.exit()
+
+            elif boton_nivel_beta.collidepoint(event.pos):
+                animacion_salida()
+                pygame.display.quit()
+                os.system(f'python "NIVELES Y BOARD/nivel_Beta_juegopygame.py" {uid}')
+                sys.exit()
+
             elif boton_bolsa.collidepoint(event.pos):
                 animacion_salida()
-                pygame.quit()
+                pygame.display.quit()
                 os.system(f'python "CONPY/bolsa_poderes_pygame.py" {uid}')
                 sys.exit()
+
             elif boton_volver.collidepoint(event.pos):
                 animacion_salida()
                 running = False
+
             elif buho_rect.collidepoint(event.pos):
                 dialogo_idx = (dialogo_idx + 1) % len(dialogos)
-                mostrar_dialogo = True
 
     pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
-
 
 
 

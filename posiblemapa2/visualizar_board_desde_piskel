@@ -1,0 +1,66 @@
+from matriz_nivel_beta import boards_nivelB
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+# Colores para cada tipo de celda
+tile_colors = {
+    0: "#000000",  # Fondo
+    1: "#E1D324",  # Camino (amarillo)
+    2: "#DF9E1E",  # Moneda grande (naranja)
+    3: "#10D6B3",  # Pared vertical (cyan)
+    4: "#1949BD",  # Pared horizontal (azul)
+    5: "#2FE75D",  # Esquina noreste
+    6: "#246732",  # Esquina noroeste
+    7: "#CC18AF",  # Esquina suroeste
+    8: "#611B3D",  # Esquina sureste
+    9: "#C72020",  # Puerta
+}
+
+# Convertir matriz a colores
+color_grid = [[tile_colors.get(cell, "#000000") for cell in row] for row in boards_nivelB]
+color_grid = np.array(color_grid)
+
+# Tamaño del tablero
+rows, cols = len(boards_nivelB), len(boards_nivelB[0])
+
+# Crear visualización
+fig, ax = plt.subplots(figsize=(cols / 3.5, rows / 3.5))
+
+# Dibujar cada celda como un rectángulo
+for i in range(rows):
+    for j in range(cols):
+        color = color_grid[i][j]
+        ax.add_patch(plt.Rectangle((j, rows - i - 1), 1, 1, color=color))
+
+# Configuración del gráfico
+ax.set_xlim(0, cols)
+ax.set_ylim(0, rows)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_aspect('equal')
+plt.title("Visualización del boards_nivelB generado desde Piskel", fontsize=14)
+
+# Leyenda
+legend_labels = {
+    0: "Fondo",
+    1: "Camino",
+    2: "Moneda grande",
+    3: "Pared vertical",
+    4: "Pared horizontal",
+    5: "Esquina ↗",
+    6: "Esquina ↖",
+    7: "Esquina ↙",
+    8: "Esquina ↘",
+    9: "Puerta"
+}
+
+legend_patches = [
+    mpatches.Patch(color=tile_colors[k], label=f"{k}: {legend_labels[k]}")
+    for k in sorted(tile_colors.keys())
+]
+
+ax.legend(handles=legend_patches, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+plt.tight_layout()
+plt.show()

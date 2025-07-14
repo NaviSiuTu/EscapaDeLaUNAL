@@ -27,9 +27,9 @@ font = pygame.font.Font(font_path, 16)
 font_small = pygame.font.Font(font_path, 12)
 
 # Fondo y logo
-fondo = pygame.image.load("IMAGENES/Menu.png")
+fondo = pygame.image.load("Assets1/Menu.png")
 fondo = pygame.transform.scale(fondo, (WIDTH, HEIGHT))
-logo = pygame.image.load("IMAGENES/Menu (1).png")
+logo = pygame.image.load("Assets1/Menu (1).png")
 logo = pygame.transform.scale(logo, (130, 130))
 logo_pos = (WIDTH // 2 - logo.get_width() // 2, 60)
 
