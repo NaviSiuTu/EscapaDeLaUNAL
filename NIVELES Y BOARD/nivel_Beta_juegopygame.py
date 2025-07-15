@@ -9,6 +9,11 @@ import subprocess
 
 pygame.init()
 
+
+# === Pantalla completa desde el inicio ===
+Display_Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+Ventana_Ancho, Ventana_Altura = Display_Surface.get_size()
+
 # === Dimensiones base de la ventana ===
 BASE_ANCHO = 398
 BASE_ALTO = 736
@@ -20,13 +25,24 @@ reloj = pygame.time.Clock()
 fps = 60
 font = pygame.font.Font("Assets1/Minecraft.ttf", 16)
 
-# =================== FUNCIONES PANTALLA INICIO ===================
+
+
+# ===== FUNCIONES PANTALLA INICIO =====
+def cortina_entrada(surface, fondo):
+    paso = 20
+    for ancho in range(Ventana_Ancho // 2, -1, -paso):
+        surface.blit(fondo, (0, 0))
+        pygame.draw.rect(surface, (0, 0, 0), (0, 0, ancho, Ventana_Altura))
+        pygame.draw.rect(surface, (0, 0, 0), (Ventana_Ancho - ancho, 0, ancho, Ventana_Altura))
+
+# ===== FUNCIONES PANTALLA INICIO =====
 def cortina_entrada(surface, fondo):
     paso = 20
     for ancho in range(BASE_ANCHO // 2, -1, -paso):
         surface.blit(fondo, (0, 0))
         pygame.draw.rect(surface, (0, 0, 0), (0, 0, ancho, BASE_ALTO))
         pygame.draw.rect(surface, (0, 0, 0), (BASE_ANCHO - ancho, 0, ancho, BASE_ALTO))
+
         pygame.display.flip()
         pygame.time.delay(20)
 
@@ -48,7 +64,10 @@ def mostrar_pantalla_inicio():
     ]
 
     fondo = pygame.image.load("Assets1/pixil-frame-02 (2).png").convert()
+    fondo = pygame.transform.scale(fondo, (Ventana_Ancho, Ventana_Altura))
+
     fondo = pygame.transform.scale(fondo, (BASE_ANCHO, BASE_ALTO))
+
 
     buho_inicio = pygame.image.load("Assets1/Buho test.png").convert_alpha()
     buho_inicio = pygame.transform.scale(buho_inicio, (80, 80))
@@ -63,10 +82,16 @@ def mostrar_pantalla_inicio():
         Display_Surface.blit(fondo, (0, 0))
 
         buho_x = 60
+        buho_y = Ventana_Altura // 2 - 50
+        caja_x = buho_x + 90
+        caja_y = buho_y + 10
+        caja_w = Ventana_Ancho - caja_x - 30
+
         buho_y = BASE_ALTO // 2 - 50
         caja_x = buho_x + 90
         caja_y = buho_y + 10
         caja_w = BASE_ANCHO - caja_x - 30
+
         caja_h = 80
 
         Display_Surface.blit(buho_inicio, (buho_x, buho_y))
@@ -90,10 +115,16 @@ def mostrar_pantalla_inicio():
             Display_Surface.blit(texto, (caja_x + 10, caja_y + 10 + i * 22))
 
         titulo = font.render("¿Estás listo para comenzar?", True, (255, 255, 255))
+        Display_Surface.blit(titulo, (Ventana_Ancho // 2 - titulo.get_width() // 2, 80))
+
+        boton_jugar = pygame.Rect(Ventana_Ancho // 2 - 120, Ventana_Altura - 140, 100, 40)
+        boton_volver = pygame.Rect(Ventana_Ancho // 2 + 20, Ventana_Altura - 140, 100, 40)
+
         Display_Surface.blit(titulo, (BASE_ANCHO // 2 - titulo.get_width() // 2, 80))
 
         boton_jugar = pygame.Rect(BASE_ANCHO // 2 - 120, BASE_ALTO - 140, 100, 40)
         boton_volver = pygame.Rect(BASE_ANCHO // 2 + 20, BASE_ALTO - 140, 100, 40)
+
 
         pygame.draw.rect(Display_Surface, (0, 255, 0), boton_jugar)
         pygame.draw.rect(Display_Surface, (255, 0, 0), boton_volver)
@@ -114,10 +145,16 @@ def mostrar_pantalla_inicio():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if boton_jugar.collidepoint(event.pos):
+                    for ancho in range(0, Ventana_Ancho // 2 + 20, 20):
+                        Display_Surface.blit(fondo, (0, 0))
+                        pygame.draw.rect(Display_Surface, (0, 0, 0), (0, 0, ancho, Ventana_Altura))
+                        pygame.draw.rect(Display_Surface, (0, 0, 0), (Ventana_Ancho - ancho, 0, ancho, Ventana_Altura))
+
                     for ancho in range(0, BASE_ANCHO // 2 + 20, 20):
                         Display_Surface.blit(fondo, (0, 0))
                         pygame.draw.rect(Display_Surface, (0, 0, 0), (0, 0, ancho, BASE_ALTO))
                         pygame.draw.rect(Display_Surface, (0, 0, 0), (BASE_ANCHO - ancho, 0, ancho, BASE_ALTO))
+
                         pygame.display.flip()
                         pygame.time.delay(20)
                     esperando = False
@@ -126,7 +163,24 @@ def mostrar_pantalla_inicio():
                     os.system(f"python CONPY/niveles_pygame.py {uid}")
                     sys.exit()
 
-# =================== BLOQUE DE EJECUCIÓN ===================
+# === Inicialización de nivel y dimensiones ===
+level = boards_nivelB
+
+colorTEST = (3, 115, 17)
+PI = math.pi
+
+CELDAS_H = len(level[0])
+CELDAS_V = len(level)
+
+CELL_WIDTH = Ventana_Ancho // CELDAS_H
+CELL_HEIGHT = (Ventana_Altura - 50) // CELDAS_V
+
+# Reajustar ventana por si hubo redondeo
+Ventana_Ancho = CELL_WIDTH * CELDAS_H
+Ventana_Altura = CELL_HEIGHT * CELDAS_V + 50
+Display_Surface = pygame.display.set_mode((Ventana_Ancho, Ventana_Altura), pygame.FULLSCREEN)
+
+# ===== BLOQUE DE EJECUCIÓN =====
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         uid = sys.argv[1]
@@ -157,6 +211,7 @@ if len(sys.argv) > 1:
     uid = sys.argv[1]
 else:
     uid = "UID_DUMMY"
+
 
 # === Poderes ===
 poder_tula = False
@@ -196,7 +251,9 @@ moneda_pequeña = pygame.transform.scale(moneda_pequeña, (12, 12))
 moneda_grande = pygame.transform.scale(moneda_grande, (20, 20))
 
 
-# =================== CLASE JUGADOR ===================
+
+
+# ===== CLASE JUGADOR =====
 class Jugador:
     def __init__(self, img, fila, col):
         self.imagen = img
@@ -433,6 +490,7 @@ def cortina_entrada(surface, fondo):
         pygame.display.flip()
         pygame.time.delay(20)
 
+
 def mostrar_pantalla_inicio():
     frases_buho = [
         "Ey, ya calentaste motores o todavia estas en Bienestar?",
@@ -537,7 +595,8 @@ def mostrar_pantalla_inicio():
                     sys.exit()
 
 
-# =================== MAIN ===================
+
+# ===== MAIN =====
 def main():
     global poder_tinto, poder_tula, poder_sticker
     corriendo = True
@@ -614,8 +673,15 @@ def main():
 
     pygame.quit()
 
-# =================== EJECUCIÓN ===================
+# ===== EJECUCIÓN =====
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        uid = sys.argv[1]
+    else:
+        uid = "UID_DUMMY"
+
+
+
     mostrar_pantalla_inicio()
     main()
 

@@ -66,8 +66,14 @@ mostrar_dialogo = True
 # Botones
 boton_nivel_alpha = pygame.Rect(WIDTH//2 - 110, 220, 220, 45)
 boton_nivel_beta = pygame.Rect(WIDTH//2 - 110, 270, 220, 45)
+<<<<<<< HEAD
+boton_nivel_453 = pygame.Rect(WIDTH//2 - 110, 320, 220, 45)
+boton_bolsa = pygame.Rect(WIDTH//2 - 110, 370, 220, 45)
+boton_volver = pygame.Rect(WIDTH//2 - 90, 450, 180, 40)
+=======
 boton_bolsa = pygame.Rect(WIDTH//2 - 110, 340, 220, 45)
 boton_volver = pygame.Rect(WIDTH//2 - 90, 420, 180, 40)
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
 
 clock = pygame.time.Clock()
 running = True
@@ -88,11 +94,52 @@ def render_texto_multilinea(texto, fuente, color, ancho_max):
     superficies = [fuente.render(linea.strip(), True, color) for linea in lineas]
     return superficies
 
+<<<<<<< HEAD
+def dibujar_botones():
+    for boton, texto, color_normal, color_hover in [
+        (boton_nivel_alpha, "NIVEL ALPHA", AZUL, AZUL_HOVER),
+        (boton_nivel_beta, "NIVEL BETA", AZUL, AZUL_HOVER),
+        (boton_nivel_453, "NIVEL 453", AZUL, AZUL_HOVER),
+        (boton_bolsa, "BOLSA DE PODERES", AMARILLO_OSCURO, AMARILLO),
+        (boton_volver, "VOLVER AL MENU", VERDE, VERDE_HOVER)
+    ]:
+        color = color_hover if boton.collidepoint(pygame.mouse.get_pos()) else color_normal
+        pygame.draw.rect(screen, color, boton, border_radius=8)
+        pygame.draw.rect(screen, NEGRO, boton, 2, border_radius=8)
+        texto_render = fuente.render(texto, True, NEGRO)
+        screen.blit(texto_render, (boton.centerx - texto_render.get_width() // 2,
+                                   boton.centery - texto_render.get_height() // 2))
+
+def dibujar_cabecera():
+    pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
+    texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
+    screen.blit(texto_jugador, (10, 10))
+    titulo = fuente_big.render("SELECCION DE NIVELES", True, BLANCO)
+    screen.blit(titulo, (WIDTH//2 - titulo.get_width()//2, 80))
+
+def dibujar_dialogo():
+    if mostrar_dialogo:
+        cuadro = pygame.Rect(60, HEIGHT - 60, 340, 45)
+        pygame.draw.rect(screen, NEGRO, cuadro, border_radius=6)
+        pygame.draw.rect(screen, BLANCO, cuadro, 2, border_radius=6)
+        texto_lineas = render_texto_multilinea(dialogos[dialogo_idx], fuente, BLANCO, cuadro.width - 20)
+        for i, linea_surface in enumerate(texto_lineas):
+            screen.blit(linea_surface, (cuadro.x + 10, cuadro.y + 8 + i * 18))
+
+=======
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
 def animacion_entrada():
     paso = 10
     for ancho in range(WIDTH // 2, -1, -paso):
         screen.blit(fondo, (0, 0))
         screen.blit(buho_img, buho_rect)
+<<<<<<< HEAD
+        dibujar_cabecera()
+        dibujar_botones()
+        dibujar_dialogo()
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
+=======
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
@@ -130,6 +177,7 @@ def animacion_entrada():
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
         pygame.display.flip()
         pygame.time.delay(25)
 
@@ -138,6 +186,13 @@ def animacion_salida():
     for ancho in range(0, WIDTH // 2 + paso, paso):
         screen.blit(fondo, (0, 0))
         screen.blit(buho_img, buho_rect)
+<<<<<<< HEAD
+        dibujar_cabecera()
+        dibujar_botones()
+        dibujar_dialogo()
+        pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
+        pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
+=======
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
@@ -175,6 +230,7 @@ def animacion_salida():
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
         pygame.display.flip()
         pygame.time.delay(20)
 
@@ -186,6 +242,10 @@ animacion_entrada()
 # Bucle principal
 while running:
     screen.blit(fondo, (0, 0))
+<<<<<<< HEAD
+    dibujar_cabecera()
+    dibujar_botones()
+=======
     mouse_pos = pygame.mouse.get_pos()
 
     # Encabezado
@@ -212,14 +272,9 @@ while running:
                                    boton.centery - texto_render.get_height() // 2))
 
     # Búho y diálogo
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
     screen.blit(buho_img, buho_rect)
-    if mostrar_dialogo:
-        cuadro = pygame.Rect(60, HEIGHT - 60, 340, 45)
-        pygame.draw.rect(screen, NEGRO, cuadro, border_radius=6)
-        pygame.draw.rect(screen, BLANCO, cuadro, 2, border_radius=6)
-        texto_lineas = render_texto_multilinea(dialogos[dialogo_idx], fuente, BLANCO, cuadro.width - 20)
-        for i, linea_surface in enumerate(texto_lineas):
-            screen.blit(linea_surface, (cuadro.x + 10, cuadro.y + 8 + i * 18))
+    dibujar_dialogo()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -238,6 +293,15 @@ while running:
                 os.system(f'python "NIVELES Y BOARD/nivel_Beta_juegopygame.py" {uid}')
                 sys.exit()
 
+<<<<<<< HEAD
+            elif boton_nivel_453.collidepoint(event.pos):
+                animacion_salida()
+                pygame.display.quit()
+                os.system(f'python "NIVELES Y BOARD/nivel_mapa_453.py" {uid}')
+                sys.exit()
+
+=======
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
             elif boton_bolsa.collidepoint(event.pos):
                 animacion_salida()
                 pygame.display.quit()
@@ -261,4 +325,7 @@ pygame.quit()
 
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12

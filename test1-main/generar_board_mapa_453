@@ -1,0 +1,35 @@
+from PIL import Image
+import numpy as np
+
+# Mapeo exacto de tus colores personalizados
+color_map = {
+    (225, 211, 36): 1,     # Camino (amarillo)
+    (223, 158, 30): 2,     # Moneda grande (naranja)
+    (16, 214, 179): 3,     # Pared vertical (cyan)
+    (25, 73, 189): 4,      # Pared horizontal (azul)
+    (47, 231, 93): 5,      # Esquina ↗ (verde claro)
+    (36, 103, 50): 6,      # Esquina ↖ (verde oscuro)
+    (204, 24, 175): 7,     # Esquina ↙ (rosa claro)
+    (97, 27, 61): 8,       # Esquina ↘ (rosa oscuro)
+    (199, 32, 32): 9,      # Puerta (rojo)
+    (0, 0, 0): 0           # Fondo (negro)
+}
+
+def map_pixel(pixel):
+    return color_map.get(tuple(pixel), 0)
+
+# 🖼️ Carga la imagen exportada desde PiskelApp como .png
+img = Image.open("mapa_453.png").convert("RGB")
+pixels = np.array(img)
+
+# 📐 Extrae la matriz
+board = [[map_pixel(pixel) for pixel in row] for row in pixels]
+
+# 💾 Guarda como archivo Python
+with open("board_mapa_453.py", "w") as f:
+    f.write("board = [\n")
+    for row in board:
+        f.write("    " + str(row) + ",\n")
+    f.write("]\n")
+
+print("✅ Board generado correctamente como board_mapa_453.py ({}x{})".format(len(board), len(board[0])))

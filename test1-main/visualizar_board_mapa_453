@@ -1,0 +1,59 @@
+from board_mapa_453 import board
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+# Mapeo visual (hex de tus colores)
+tile_colors = {
+    0: "#000000",  # fondo
+    1: "#E1D324",  # camino (amarillo)
+    2: "#DF9E1E",  # moneda grande (naranja)
+    3: "#10D6B3",  # pared vertical (cyan)
+    4: "#1949BD",  # pared horizontal (azul)
+    5: "#2FE75D",  # esquina ↗
+    6: "#246732",  # esquina ↖
+    7: "#CC18AF",  # esquina ↙
+    8: "#611B3D",  # esquina ↘
+    9: "#C72020",  # puerta
+}
+
+# Convertir a colores por celda
+color_grid = np.array([[tile_colors.get(cell, "#000000") for cell in row] for row in board])
+
+# Dimensiones
+rows, cols = len(board), len(board[0])
+
+# Crear figura
+fig, ax = plt.subplots(figsize=(cols / 6, rows / 6))  # escalar visualización
+for i in range(rows):
+    for j in range(cols):
+        ax.add_patch(plt.Rectangle((j, rows - i - 1), 1, 1, color=color_grid[i][j]))
+
+ax.set_xlim(0, cols)
+ax.set_ylim(0, rows)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_aspect('equal')
+plt.title("Visualización de board_mapa_453", fontsize=14)
+
+# Leyenda
+legend_info = {
+    1: "Camino",
+    2: "Moneda grande",
+    3: "Pared vertical",
+    4: "Pared horizontal",
+    5: "Esquina ↗",
+    6: "Esquina ↖",
+    7: "Esquina ↙",
+    8: "Esquina ↘",
+    9: "Puerta",
+    0: "Fondo"
+}
+legend_patches = [
+    mpatches.Patch(color=tile_colors[k], label=f"{k}: {v}")
+    for k, v in legend_info.items()
+]
+ax.legend(handles=legend_patches, bbox_to_anchor=(1.05, 1), loc='upper left')
+
+plt.tight_layout()
+plt.show()

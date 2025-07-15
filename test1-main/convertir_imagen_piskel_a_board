@@ -1,0 +1,37 @@
+from PIL import Image
+import numpy as np
+
+# Colores personalizados exactos
+custom_color_map = {
+    (225, 211, 36): 1,     # Camino (amarillo)
+    (223, 158, 30): 2,     # Moneda grande (naranja)
+    (16, 214, 179): 3,     # Pared vertical (cyan)
+    (25, 73, 189): 4,      # Pared horizontal (azul)
+    (47, 231, 93): 5,      # Esquina ↗ (verde claro)
+    (36, 103, 50): 6,      # Esquina ↖ (verde oscuro)
+    (204, 24, 175): 7,     # Esquina ↙ (rosa claro)
+    (97, 27, 61): 8,       # Esquina ↘ (rosa oscuro)
+    (199, 32, 32): 9,      # Puerta (rojo)
+    (0, 0, 0): 0           # Fondo (negro)
+}
+
+# Función que busca el color exacto
+def map_pixel_to_code(pixel):
+    return custom_color_map.get(tuple(pixel), 0)
+
+# Cargar imagen y convertir a RGB
+img = Image.open("tu_imagen_piskel.png").convert("RGB")
+img = img.resize((50, 50), Image.NEAREST)
+pixels = np.array(img)
+
+# Convertir píxeles a matriz
+board = [[map_pixel_to_code(pixel) for pixel in row] for row in pixels]
+
+# Guardar archivo Python
+with open("board_desde_piskel_colores_personalizados.py", "w") as f:
+    f.write("board = [\n")
+    for row in board:
+        f.write("    " + str(row) + ",\n")
+    f.write("]\n")
+
+print("✅ Board generado correctamente con tus colores personalizados.")
