@@ -22,11 +22,7 @@ def obtener_monedas(usuario_id):
     try:
         ref = db.reference(f'users/{usuario_id}')
         datos = ref.get()
-        if datos:
-            print(f"[DEBUG] Usuario encontrado: {datos}")
-            return datos.get("monedas", 0)
-        print("[DEBUG] Usuario no encontrado en Firebase.")
-        return 0
+        return datos.get("monedas", 0) if datos else 0
     except Exception as e:
         print(f"[ERROR] al obtener monedas: {e}")
         return 0
@@ -45,13 +41,20 @@ def registrar_compra(usuario_id, producto):
             compras_ref.push(nueva)
             nuevo_saldo = datos.get("monedas", 0) - producto["precio"]
             ref_user.update({"monedas": nuevo_saldo})
-            print(f"[DEBUG] Compra registrada. Nuevo saldo: {nuevo_saldo}")
             return nuevo_saldo
-        print("[DEBUG] No se encontro el usuario al registrar compra.")
         return None
     except Exception as e:
         print(f"[ERROR] al registrar compra: {e}")
         return None
+
+def obtener_bolsa(usuario_id):
+    ref = db.reference(f'users/{usuario_id}/compras')
+    compras = ref.get()
+    return compras if compras else {}
+
+def usar_item(uid, id_item):
+    ref = db.reference(f'users/{uid}/compras/{id_item}')
+    ref.delete()
 
 # === Lanzar Tienda ===
 def lanzar_tienda():
@@ -83,6 +86,9 @@ def lanzar_tienda():
     boton_volver = pygame.Rect(10, 10, 80, 30)
     buho_img = pygame.transform.scale(pygame.image.load("Assets1/Buho test.png"), (40, 40))
     buho_rect = buho_img.get_rect(topleft=(10, ALTO - 60))
+
+    bolsa_img = pygame.transform.scale(pygame.image.load("Assets1/Bolsa (2).png"), (32, 32))
+    bolsa_rect = bolsa_img.get_rect(topright=(ANCHO - 12, 12))
 
     dialogos = [
         "Bienvenido a la tienda UNAL joven de pregrado.",
@@ -119,6 +125,64 @@ def lanzar_tienda():
         if actual:
             lineas.append(actual)
         return lineas
+
+    def mostrar_bolsa():
+        bolsa_raw = obtener_bolsa(usuario_id)
+        ventana_w, ventana_h = 340, 300
+        ventana = pygame.Surface((ventana_w, ventana_h))
+        ventana.fill((30, 30, 30))
+        pygame.draw.rect(ventana, (255, 255, 255), ventana.get_rect(), 3)
+
+        # Contar ítems repetidos
+        conteo = {}
+        for item in bolsa_raw.values():
+            nombre = item['item']
+            if nombre in conteo:
+                conteo[nombre]['cantidad'] += 1
+            else:
+                conteo[nombre] = {
+                    'precio': item['precio'],
+                    'cantidad': 1
+                }
+
+        y = 10
+        if conteo:
+            for nombre, data in conteo.items():
+                txt = f"{nombre} x{data['cantidad']} - ${data['precio'] * data['cantidad']}"
+                texto = fuente_peque.render(txt, True, (0, 255, 0))
+                ventana.blit(texto, (10, y))
+                y += 25
+        else:
+            sin_txt = fuente_peque.render("No hay poderes aún.", True, (255, 0, 0))
+            ventana.blit(sin_txt, (10, y))
+            y += 30
+
+        # Botón cerrar
+        cerrar_rect = pygame.Rect(ventana_w // 2 - 40, ventana_h - 40, 80, 25)
+        pygame.draw.rect(ventana, (255, 0, 0), cerrar_rect)
+        pygame.draw.rect(ventana, (0, 0, 0), cerrar_rect, 2)
+        cerrar_txt = fuente_peque.render("CERRAR", True, (0, 0, 0))
+        ventana.blit(cerrar_txt, (cerrar_rect.centerx - cerrar_txt.get_width() // 2,
+                                cerrar_rect.centery - cerrar_txt.get_height() // 2))
+
+        # Mostrar modal centrado
+        pos_modal = ((ANCHO - ventana_w) // 2, (ALTO - ventana_h) // 2)
+        pantalla.blit(ventana, pos_modal)
+        pygame.display.flip()
+
+        esperando = True
+        while esperando:
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+                    esperando = False
+                elif ev.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_rel = (ev.pos[0] - pos_modal[0], ev.pos[1] - pos_modal[1])
+                    if cerrar_rect.collidepoint(mouse_rel):
+                        esperando = False
+            pygame.time.delay(50)
 
     def dibujar(pos_mouse=None):
         if pos_mouse is None:
@@ -161,14 +225,14 @@ def lanzar_tienda():
 
             y += 120
 
-        color_volver = (0, 255, 0) if boton_volver.collidepoint(pos_mouse) else (0, 192, 0)
-        pygame.draw.rect(pantalla, color_volver, boton_volver)
+        pygame.draw.rect(pantalla, (0, 255, 0) if boton_volver.collidepoint(pos_mouse) else (0, 192, 0), boton_volver)
         pygame.draw.rect(pantalla, (0, 0, 0), boton_volver, 2)
-        txt_volver = fuente_peque.render("VOLVER", True, (0, 0, 0))
-        pantalla.blit(txt_volver, (boton_volver.centerx - txt_volver.get_width() // 2,
-                                   boton_volver.centery - 8))
+        pantalla.blit(fuente_peque.render("VOLVER", True, (0, 0, 0)),
+                      (boton_volver.centerx - 22, boton_volver.centery - 8))
 
         pantalla.blit(buho_img, buho_rect)
+        pantalla.blit(bolsa_img, bolsa_rect)
+
         if mostrar_dialogo:
             cuadro = pygame.Rect(60, ALTO - 60, 320, 45)
             pygame.draw.rect(pantalla, (0, 0, 0), cuadro, border_radius=6)
@@ -182,7 +246,6 @@ def lanzar_tienda():
 
     def animacion_entrada(pantalla, fondo, dibujar_func):
         paso = 20
-        ANCHO, ALTO = pantalla.get_size()
         for ancho in range(ANCHO // 2, -1, -paso):
             dibujar_func()
             pygame.draw.rect(pantalla, (0, 0, 0), (0, 0, ancho, ALTO))
@@ -192,7 +255,6 @@ def lanzar_tienda():
 
     def animacion_salida(pantalla, fondo, dibujar_func):
         paso = 20
-        ANCHO, ALTO = pantalla.get_size()
         for ancho in range(0, ANCHO // 2 + paso, paso):
             dibujar_func()
             pygame.draw.rect(pantalla, (0, 0, 0), (0, 0, ancho, ALTO))
@@ -217,6 +279,8 @@ def lanzar_tienda():
                 elif buho_rect.collidepoint(pos):
                     dialogo_idx = (dialogo_idx + 1) % len(dialogos)
                     mostrar_dialogo = True
+                elif bolsa_rect.collidepoint(pos):
+                    mostrar_bolsa()
                 for rect_btn, prod in botones:
                     if rect_btn.collidepoint(pos):
                         if saldo_jugador >= prod["precio"]:
@@ -246,6 +310,7 @@ def lanzar_tienda():
 
 if __name__ == "__main__":
     lanzar_tienda()
+
 
 
 

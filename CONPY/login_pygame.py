@@ -13,7 +13,7 @@ if not os.environ.get("SPLASH_DONE"):
     icono = pygame.image.load("Assets1/Menu (1).png")
     pygame.display.set_icon(icono)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Login Retro")
+    pygame.display.set_caption("Escapa de la UNAL")
     mostrar_splash_animado(screen, "Assets1/Splashjiji.gif", WIDTH, HEIGHT)
     os.environ["SPLASH_DONE"] = "1"
 
@@ -28,7 +28,7 @@ if not firebase_admin._apps:
 WIDTH, HEIGHT = 417, 497
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Login Retro")
+pygame.display.set_caption("Escapa de la UNAL")
 
 # Colores y fuente
 VERDE = (0, 192, 0)
@@ -46,8 +46,15 @@ logo = pygame.image.load("Assets1/Menu (1).png")
 logo = pygame.transform.scale(logo, (130, 130))
 logo_rect = logo.get_rect(center=(WIDTH // 2, 100))
 
-# 🎮 Cortinas
+# Íconos de ojo para contraseña
+ojo_abierto = pygame.image.load("Assets1/ver.png").convert_alpha()
+ojo_cerrado = pygame.image.load("Assets1/no_ver.png").convert_alpha()
+ojo_abierto = pygame.transform.scale(ojo_abierto, (24, 24))
+ojo_cerrado = pygame.transform.scale(ojo_cerrado, (24, 24))
+ojo_rect = pygame.Rect(285, 247, 24, 24)
+mostrar_password = False
 
+# Cortinas
 def cortina_entrada():
     paso = 20
     for ancho in range(WIDTH // 2, -1, -paso):
@@ -90,17 +97,16 @@ class InputBox:
                 pass
             else:
                 self.text += event.unicode
-            display_text = '*' * len(self.text) if self.password else self.text
-            self.txt_surface = font.render(display_text, True, NEGRO)
+            self.txt_surface = font.render(self.text, True, NEGRO)
 
     def update(self, mouse_pos):
         if self.rect.collidepoint(mouse_pos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_IBEAM)
         self.color = self.hover_color if self.active else self.base_color
 
-    def draw(self, screen):
+    def draw(self, screen, mostrar_password=False):
         pygame.draw.rect(screen, self.color, self.rect)
-        display_text = '*' * len(self.text) if self.password else self.text
+        display_text = self.text if (not self.password or mostrar_password) else '*' * len(self.text)
         max_width = self.rect.width - 10
         rendered_text = font.render(display_text, True, NEGRO)
 
@@ -156,7 +162,7 @@ clock = pygame.time.Clock()
 error_texto = ''
 running = True
 
-# Lanzar cortina de entrada
+# Cortina inicial
 screen.blit(fondo, (0, 0))
 screen.blit(logo, logo_rect)
 pygame.display.flip()
@@ -175,7 +181,10 @@ while running:
     email_box.update(mouse_pos)
     pass_box.update(mouse_pos)
     email_box.draw(screen)
-    pass_box.draw(screen)
+    pass_box.draw(screen, mostrar_password)
+
+    # Botón de mostrar/ocultar contraseña
+    screen.blit(ojo_abierto if mostrar_password else ojo_cerrado, ojo_rect)
 
     login_rect = pygame.Rect(150, 330, 100, 35)
     login_hover = login_rect.collidepoint(mouse_pos)
@@ -222,10 +231,13 @@ while running:
 
             elif reg_rect.collidepoint(event.pos):
                 abrir_registro()
+            elif ojo_rect.collidepoint(event.pos):
+                mostrar_password = not mostrar_password
 
     clock.tick(30)
 
 pygame.quit()
+
 
 
 
