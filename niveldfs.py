@@ -10,6 +10,8 @@ import subprocess
 level = boards_nivelB
 from firebase_admin import credentials, db, initialize_app
 import firebase_admin
+import threading
+from control_voz import iniciar_escucha, obtener_orden
 
 
     # Inicializar Firebase (si no está inicializado aún)
@@ -652,6 +654,23 @@ def mostrar_bolsa(pantalla, usuario_id, fuente, fuente_peque):
         pygame.time.delay(50)
     
     return None  # Si se cierra sin seleccionar nada
+# === FUNCIÓN DE CONTROL POR VOZ ===
+def control_por_voz():
+    while True:
+        try:
+            comando = iniciar_escucha()
+            print("🎙️ Voz reconocida:", comando)
+            if comando == "izquierda":
+                jugador.mover(-1, 0)
+            elif comando == "derecha":
+                jugador.mover(1, 0)
+            elif comando == "arriba":
+                jugador.mover(0, -1)
+            elif comando == "abajo":
+                jugador.mover(0, 1)
+        except Exception as e:
+            print("❌ Error en control por voz:", e)
+
 
 # === Variables de poderes ===
 poder_tula = False           # Si tienes el poder de la tula disponible
@@ -659,8 +678,9 @@ inmune_por_tula = False      # Si estás en los 3 segundos de inmunidad tras usa
 tula_inmunidad_timer = 0     # Guarda el tiempo cuando empieza la inmunidad
 poder_tinto = False
 poder_tinto_timer = 0
-poder_sticker
-poder_sticker_timer
+poder_sticker = False
+poder_sticker_timer = 0
+
 
 # =================== MAIN ===================
 def main():
@@ -704,6 +724,16 @@ def main():
                     jugador.mover(0, -1)
                 elif event.key in [pygame.K_DOWN, pygame.K_s]:
                     jugador.mover(0, 1)
+        # === COMANDOS POR VOZ ===
+        orden = obtener_orden()
+        if orden == "a":
+            jugador.mover(-1, 0)
+        elif orden == "d":
+            jugador.mover(1, 0)
+        elif orden == "w":
+            jugador.mover(0, -1)
+        elif orden == "s":
+            jugador.mover(0, 1)
 
         tiempo_actual = pygame.time.get_ticks()
         if poder_tinto and tiempo_actual - poder_tinto_timer > 5000:
@@ -768,6 +798,7 @@ def main():
     pygame.quit()
 
 # =================== EJECUCIÓN ===================
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         uid = sys.argv[1]
@@ -775,10 +806,30 @@ if __name__ == "__main__":
         uid = "UID_DUMMY"
 
     mostrar_pantalla_inicio()
-    animar_nombre_edificio()  # 👈 AÑADIR ESTO
+    animar_nombre_edificio()
+
+    # INICIAR HILO DE VOZ
+    iniciar_escucha()  # ✅
+
+
+    # LANZAR JUEGO
     main()
 
 
+if __name__ == "__main__":
+    try:
+        print("🟡 Lanzando pantalla de inicio...")
+        mostrar_pantalla_inicio()
+        print("🟢 Animación de nombre edificio...")
+        animar_nombre_edificio()
+        print("🔊 Iniciando control de voz...")
+        iniciar_escucha()  # ✅
+        print("🎯 Llamando a main()...")
+        main()
+    except Exception as e:
+        print("❌ Ocurrió un error fatal:", e)
+        pygame.quit()
+        input("Presiona Enter para cerrar...")
 
 
 
