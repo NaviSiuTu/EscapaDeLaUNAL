@@ -60,7 +60,7 @@ cd escapa-unal
 pip install -r requirements.txt
 
 # Ejecuta el juego
-python niveldfs.py
+python login.py
 ```
 
 ---
