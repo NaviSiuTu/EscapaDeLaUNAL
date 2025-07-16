@@ -28,8 +28,8 @@
 * ✅ Poderes:
 
   * **Tula Bienestar UN**: te protege de un golpe y activa inmunidad temporal
-  * **Tinto cafetería UNAL**: aumenta velocidad
-  * **Sticker UNAL**: ralentiza a la cabra
+  * **Tinto cafetería UNAL**: aumenta velocidad del jugador
+  * **Sticker UNAL**: ralentiza a la cabra (enemigo)
 * ✅ Enemigo con IA que sigue tu rastro como en el juego *Tomb of the Mask*
 * ✅ Movimiento del jugador estilo *Tomb of the Mask*
 ---
