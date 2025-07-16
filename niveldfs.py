@@ -4,11 +4,26 @@ import sys
 import os
 import heapq
 import random
-from generadordfs import generar_laberinto_con_salida
-boards_nivelB = generar_laberinto_con_salida()
-level = boards_nivelB
-
+from generadordfs import generar_laberinto
+boards_nivelB = generar_laberinto()
 import subprocess
+level = boards_nivelB
+from firebase_admin import credentials, db, initialize_app
+import firebase_admin
+
+
+    # Inicializar Firebase (si no está inicializado aún)
+if not firebase_admin._apps:
+    cred = credentials.Certificate("base-de-datos-proyecto-8b344-firebase-adminsdk-fbsvc-281358fd83.json")
+    initialize_app(cred, {
+        "databaseURL": "https://base-de-datos-proyecto-8b344-default-rtdb.firebaseio.com/"
+    })
+
+if len(sys.argv) > 1:
+    uid = sys.argv[1]
+else:
+    uid = "UID_DUMMY"
+
 
 pygame.init()
 
@@ -277,9 +292,6 @@ def mover_cabra():
         if camino:
             cabra_pos = list(camino[0])
 
-
-
-# === POSICIÓN INICIAL DEL JUGADOR (dentro de la cruz) ===
 # === POSICIÓN INICIAL DEL JUGADOR (dentro de la cruz) ===
 pos_inicial = next(
     ((i, j) for i in range(len(level)) for j in range(len(level[0]))
@@ -298,8 +310,6 @@ def posicion_cabra_inicial(jugador_f, jugador_c, dx, dy):
         return [cf, cc]
     return [jugador_f, jugador_c]  # fallback si es muro
 
-# Nota: se debe actualizar cabra_pos cuando el jugador se mueve por primera vez,
-# como ya haces en jugador.mover()
 
 
 # Crear jugador con posición válida
@@ -347,9 +357,42 @@ def astar(start, goal):
 
     return []
 
+def animar_nombre_edificio():
+    nombre = "🏛️ EDIFICIO CYT"
+    texto = ""
+
+    fuente_cyt = pygame.font.Font("Assets1/Minecraft.ttf", 36)
+    tiempo_letra = 100  # ms entre letras
+    inicio = pygame.time.get_ticks()
+
+    mostrar = True
+    while mostrar:
+        now = pygame.time.get_ticks()
+        index = min((now - inicio) // tiempo_letra, len(nombre))
+        texto = nombre[:index]
+
+        Display_Surface.fill((0, 0, 0))  # ← Fondo negro sólido
+        render = fuente_cyt.render(texto, True, (255, 255, 0))
+        x = Ventana_Ancho // 2 - render.get_width() // 2
+        y = Ventana_Altura // 2 - render.get_height() // 2
+        Display_Surface.blit(render, (x, y))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if index >= len(nombre):
+            pygame.time.delay(1500)
+            mostrar = False
+
+        pygame.time.delay(30)
+
 
 
 def draw_board(lvl):
+    dibujar_contorno_mapa(level)
     for i in range(len(lvl)):
         for j in range(len(lvl[i])):
             if boards_nivelB[i][j] == 0:
@@ -386,7 +429,32 @@ def draw_board(lvl):
             elif valor == 9:
                 pygame.draw.rect(Display_Surface, (0, 0, 0), (j * CELL_WIDTH, i * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT))  # negro
 
+def dibujar_contorno_mapa(level):
+    t = pygame.time.get_ticks() / 200
+    r = 80 + int(80 * math.sin(t))
+    g = 200
+    b = 80 + int(80 * math.cos(t))
+    color = (r % 256, g % 256, b % 256)
 
+    for i in range(len(level)):
+        for j in range(len(level[i])):
+            if boards_nivelB[i][j] == 0:
+                continue  # fuera de la cruz
+            if not is_wall(i, j):
+                continue  # no es muro
+
+            x = j * CELL_WIDTH
+            y = i * CELL_HEIGHT
+
+            # Verificar vecinos vacíos para saber si está en el borde
+            if i == 0 or not is_wall(i - 1, j):  # arriba
+                pygame.draw.line(Display_Surface, color, (x, y), (x + CELL_WIDTH, y), 2)
+            if i == len(level) - 1 or not is_wall(i + 1, j):  # abajo
+                pygame.draw.line(Display_Surface, color, (x, y + CELL_HEIGHT), (x + CELL_WIDTH, y + CELL_HEIGHT), 2)
+            if j == 0 or not is_wall(i, j - 1):  # izquierda
+                pygame.draw.line(Display_Surface, color, (x, y), (x, y + CELL_HEIGHT), 2)
+            if j == len(level[i]) - 1 or not is_wall(i, j + 1):  # derecha
+                pygame.draw.line(Display_Surface, color, (x + CELL_WIDTH, y), (x + CELL_WIDTH, y + CELL_HEIGHT), 2)
 
 def mostrar_pausa():
     overlay = pygame.Surface((Ventana_Ancho, Ventana_Altura))
@@ -457,12 +525,155 @@ def mostrar_game_over():
                     os.system(f"python CONPY/niveles_pygame.py {uid}")
                     sys.exit()
 
+def mostrar_victoria():
+
+
+    # Obtener monedas actuales con protección por si 'datos' es None
+    ref = db.reference(f"users/{uid}")
+    datos = ref.get()
+    monedas_actuales = datos.get("monedas", 0) if datos else 0
+    nuevas_monedas = monedas_actuales + puntaje
+    ref.update({"monedas": nuevas_monedas})
+
+    while True:
+        overlay = pygame.Surface((Ventana_Ancho, Ventana_Altura))
+        overlay.set_alpha(200)
+        overlay.fill((0, 0, 0))
+        Display_Surface.blit(overlay, (0, 0))
+
+        titulo = font.render("¡NIVEL COMPLETADO!", True, (255, 255, 0))
+        Display_Surface.blit(titulo, (Ventana_Ancho // 2 - titulo.get_width() // 2, 160))
+
+        texto_puntaje = font.render(f"Monedas recolectadas: {puntaje}", True, (255, 255, 255))
+        Display_Surface.blit(texto_puntaje, (Ventana_Ancho // 2 - texto_puntaje.get_width() // 2, 210))
+
+        boton_volver = pygame.Rect(Ventana_Ancho // 2 - 100, 280, 200, 40)
+        boton_salir = pygame.Rect(Ventana_Ancho // 2 - 100, 340, 200, 40)
+
+        pygame.draw.rect(Display_Surface, (0, 255, 0), boton_volver, border_radius=6)
+        pygame.draw.rect(Display_Surface, (255, 0, 0), boton_salir, border_radius=6)
+
+        txt_volver = font.render("VOLVER A NIVELES", True, (0, 0, 0))
+        txt_salir = font.render("SALIR", True, (0, 0, 0))
+
+        Display_Surface.blit(txt_volver, (boton_volver.centerx - txt_volver.get_width() // 2, boton_volver.centery - txt_volver.get_height() // 2))
+        Display_Surface.blit(txt_salir, (boton_salir.centerx - txt_salir.get_width() // 2, boton_salir.centery - txt_salir.get_height() // 2))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if boton_volver.collidepoint(event.pos):
+                    pygame.quit()
+                    os.system(f"python CONPY/niveles_pygame.py {uid}")
+                    sys.exit()
+                elif boton_salir.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+
+def obtener_bolsa(usuario_id):
+    ref = db.reference(f'users/{usuario_id}/compras')
+    compras = ref.get()
+    return compras if compras else {}
+
+def mostrar_bolsa(pantalla, usuario_id, fuente, fuente_peque):
+    bolsa_raw = obtener_bolsa(usuario_id)
+    ANCHO, ALTO = pantalla.get_size()
+    ventana_w, ventana_h = 340, 300
+    ventana = pygame.Surface((ventana_w, ventana_h))
+    ventana.fill((30, 30, 30))
+    pygame.draw.rect(ventana, (255, 255, 255), ventana.get_rect(), 3)
+
+    conteo = {}
+    for item_id, item in bolsa_raw.items():
+        nombre = item['item']
+        if nombre in conteo:
+            conteo[nombre]['cantidad'] += 1
+            conteo[nombre]['ids'].append(item_id)
+        else:
+            conteo[nombre] = {
+                'precio': item['precio'],
+                'cantidad': 1,
+                'ids': [item_id]
+            }
+
+    botones_items = []
+    y = 10
+    if conteo:
+        for nombre, data in conteo.items():
+            txt = f"{nombre} x{data['cantidad']} - ${data['precio'] * data['cantidad']}"
+            texto = fuente_peque.render(txt, True, (0, 255, 0))
+            ventana.blit(texto, (10, y))
+
+            # Área clickeable del ítem
+            item_rect = pygame.Rect(10, y, ventana_w - 20, 25)
+            botones_items.append((item_rect, nombre, data['ids'][0]))  # usar el primer ID para borrar
+            y += 30
+    else:
+        sin_txt = fuente_peque.render("No hay poderes aún.", True, (255, 0, 0))
+        ventana.blit(sin_txt, (10, y))
+        y += 30
+
+    # Botón cerrar
+    cerrar_rect = pygame.Rect(ventana_w // 2 - 40, ventana_h - 40, 80, 25)
+    pygame.draw.rect(ventana, (255, 0, 0), cerrar_rect)
+    pygame.draw.rect(ventana, (0, 0, 0), cerrar_rect, 2)
+    cerrar_txt = fuente_peque.render("CERRAR", True, (0, 0, 0))
+    ventana.blit(cerrar_txt, (cerrar_rect.centerx - cerrar_txt.get_width() // 2,
+                              cerrar_rect.centery - cerrar_txt.get_height() // 2))
+
+    # Dibujar modal
+    pos_modal = ((ANCHO - ventana_w) // 2, (ALTO - ventana_h) // 2)
+    pantalla.blit(ventana, pos_modal)
+    pygame.display.flip()
+
+    esperando = True
+    while esperando:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+                esperando = False
+            elif ev.type == pygame.MOUSEBUTTONDOWN:
+                mouse_rel = (ev.pos[0] - pos_modal[0], ev.pos[1] - pos_modal[1])
+                if cerrar_rect.collidepoint(mouse_rel):
+                    esperando = False
+                else:
+                    for item_rect, nombre, item_id in botones_items:
+                        if item_rect.collidepoint(mouse_rel):
+                            # Eliminar ítem de Firebase
+                            ref = db.reference(f"users/{usuario_id}/compras/{item_id}")
+                            ref.delete()
+                            return nombre  # Activar poder en juego
+        pygame.time.delay(50)
+    
+    return None  # Si se cierra sin seleccionar nada
+
+# === Variables de poderes ===
+poder_tula = False           # Si tienes el poder de la tula disponible
+inmune_por_tula = False      # Si estás en los 3 segundos de inmunidad tras usar la tula
+tula_inmunidad_timer = 0     # Guarda el tiempo cuando empieza la inmunidad
+poder_tinto = False
+poder_tinto_timer = 0
+poder_sticker
+poder_sticker_timer
 
 # =================== MAIN ===================
 def main():
-    global poder_tinto, poder_tula, poder_sticker
+
+    global poder_tula, inmune_por_tula, tula_inmunidad_timer, poder_tinto, poder_tinto_timer, poder_sticker_timer, poder_sticker
+
     corriendo = True
     while corriendo:
+        # Verificar si ya pasaron los 3 segundos de inmunidad de la tula
+        if inmune_por_tula and pygame.time.get_ticks() - tula_inmunidad_timer > 3000:
+            inmune_por_tula = False
+            print("🛡 Inmunidad de la Tula finalizada")
+
         reloj.tick(fps)
         Display_Surface.fill((4, 17, 4))
         draw_board(level)
@@ -474,7 +685,16 @@ def main():
                 if boton_pausa.collidepoint(event.pos):
                     mostrar_pausa()
                 elif boton_bolsa.collidepoint(event.pos):
-                    os.system(f"python CONPY/bolsa_poderes_pygame.py {uid}")
+                    poder_usado = mostrar_bolsa(Display_Surface, uid, font, font)
+                    if poder_usado == "Tula Bienestar UN":
+                        poder_tula = True
+                    elif poder_usado == "Tinto cafeteria UNAL":
+                        poder_tinto = True
+                        poder_tinto_timer = pygame.time.get_ticks()
+                    elif poder_usado == "Sticker UNAL":
+                        poder_sticker = True
+                        poder_sticker_timer = pygame.time.get_ticks()
+
             elif event.type == pygame.KEYDOWN:
                 if event.key in [pygame.K_LEFT, pygame.K_a]:
                     jugador.mover(-1, 0)
@@ -499,10 +719,18 @@ def main():
             Display_Surface.blit(cabra_img, (cabra_pos[1]*CELL_WIDTH, cabra_pos[0]*CELL_HEIGHT))
 
         if [jugador.fila, jugador.col] == cabra_pos:
-            if poder_tula:
+            if inmune_por_tula:
+                # Aún estás protegido por la Tula
+                pass
+            elif poder_tula:
+                # Tula se activa, sobrevives y quedas inmune 3s
                 poder_tula = False
+                inmune_por_tula = True
+                tula_inmunidad_timer = pygame.time.get_ticks()
+                print("🛡 Tula activada: inmune por 3 segundos")
             else:
                 mostrar_game_over()
+
 
         # Dibujar botones
         pygame.draw.rect(Display_Surface, (200, 200, 0), boton_pausa)
@@ -516,14 +744,17 @@ def main():
         Display_Surface.blit(txt_bolsa, (boton_bolsa.centerx - txt_bolsa.get_width()//2, boton_bolsa.centery - txt_bolsa.get_height()//2))
 
         # Estado de poder activo
-        if poder_tula:
-            texto_poder = font.render("🛡 Tula activa", True, (255, 255, 255))
+        if inmune_por_tula:
+            texto_poder = font.render("🛡 Inmune por tula", True, (255, 255, 0))
+        elif poder_tula:
+            texto_poder = font.render("🛡 Tula lista", True, (0, 255, 255))
         elif poder_tinto:
             texto_poder = font.render("⚡ Tinto activo", True, (255, 255, 255))
         elif poder_sticker:
             texto_poder = font.render("🚫 Sticker activo", True, (255, 255, 255))
         else:
             texto_poder = None
+
 
         if texto_poder:
             Display_Surface.blit(texto_poder, (10, 10))
@@ -544,7 +775,9 @@ if __name__ == "__main__":
         uid = "UID_DUMMY"
 
     mostrar_pantalla_inicio()
+    animar_nombre_edificio()  # 👈 AÑADIR ESTO
     main()
+
 
 
 

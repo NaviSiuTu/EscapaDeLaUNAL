@@ -8,14 +8,15 @@ from board_mapa_453 import board as level
 
 pygame.init()
 
-CELL_COLS = len(level[0])
-CELL_ROWS = len(level)
+# Inicializar pantalla completa
+Display_Surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+Ventana_Ancho, Ventana_Altura = Display_Surface.get_size()
+
 CELL_WIDTH = 16
 CELL_HEIGHT = 16
-Ventana_Ancho = CELL_COLS * CELL_WIDTH
-Ventana_Altura = CELL_ROWS * CELL_HEIGHT + 50
+VISIBLE_COLS = Ventana_Ancho // CELL_WIDTH
+VISIBLE_ROWS = (Ventana_Altura - 50) // CELL_HEIGHT
 
-Display_Surface = pygame.display.set_mode((Ventana_Ancho, Ventana_Altura))
 pygame.display.set_caption("Nivel Mapa 453")
 
 reloj = pygame.time.Clock()
@@ -24,6 +25,9 @@ PI = math.pi
 
 uid = "UID_DUMMY"
 puntaje = 0
+
+CELL_COLS = len(level[0])
+CELL_ROWS = len(level)
 
 buho_img = pygame.transform.scale(pygame.image.load("Assets1/Buho test.png"), (CELL_WIDTH, CELL_HEIGHT))
 cabra_img = pygame.transform.scale(pygame.image.load("Assets1/Cabra test.png"), (CELL_WIDTH, CELL_HEIGHT))
@@ -46,11 +50,15 @@ class Jugador:
         self.trail.append({"fila": self.fila, "col": self.col, "alpha": 255})
 
     def dibujar_estela(self):
+        offset_x, offset_y = get_scroll_offset()
         for p in self.trail:
-            surf = pygame.Surface((CELL_WIDTH, CELL_HEIGHT))
-            surf.set_alpha(p["alpha"])
-            surf.fill((255, 255, 0))
-            Display_Surface.blit(surf, (p["col"] * CELL_WIDTH, p["fila"] * CELL_HEIGHT))
+            x = (p["col"] - offset_x) * CELL_WIDTH
+            y = (p["fila"] - offset_y) * CELL_HEIGHT
+            if 0 <= x <= Ventana_Ancho and 0 <= y <= Ventana_Altura:
+                surf = pygame.Surface((CELL_WIDTH, CELL_HEIGHT))
+                surf.set_alpha(p["alpha"])
+                surf.fill((255, 255, 0))
+                Display_Surface.blit(surf, (x, y))
             p["alpha"] -= 25
         self.trail = [p for p in self.trail if p["alpha"] > 0]
 
@@ -83,7 +91,17 @@ class Jugador:
                 level[self.fila][self.col] = 0
 
     def dibujar(self):
-        Display_Surface.blit(self.imagen, (self.col * CELL_WIDTH, self.fila * CELL_HEIGHT))
+        offset_x, offset_y = get_scroll_offset()
+        x = (self.col - offset_x) * CELL_WIDTH
+        y = (self.fila - offset_y) * CELL_HEIGHT
+        Display_Surface.blit(self.imagen, (x, y))
+
+def get_scroll_offset():
+    offset_x = jugador.col - VISIBLE_COLS // 2
+    offset_y = jugador.fila - VISIBLE_ROWS // 2
+    offset_x = max(0, min(offset_x, CELL_COLS - VISIBLE_COLS))
+    offset_y = max(0, min(offset_y, CELL_ROWS - VISIBLE_ROWS))
+    return offset_x, offset_y
 
 spawn_tiles = [(i, j) for i in range(len(level)) for j in range(len(level[0])) if level[i][j] == 1]
 spawn_fila, spawn_col = random.choice(spawn_tiles)
@@ -137,30 +155,33 @@ def mover_cabra():
         cabra_pos = list(siguiente)
 
 def draw_board(lvl):
+    offset_x, offset_y = get_scroll_offset()
     colorTEST = (3, 115, 17)
-    for i in range(len(lvl)):
-        for j in range(len(lvl[i])):
+    for i in range(offset_y, offset_y + VISIBLE_ROWS):
+        for j in range(offset_x, offset_x + VISIBLE_COLS):
+            if i >= CELL_ROWS or j >= CELL_COLS:
+                continue
             valor = lvl[i][j]
-            cx = j * CELL_WIDTH + (0.5 * CELL_WIDTH)
-            cy = i * CELL_HEIGHT + (0.5 * CELL_HEIGHT)
+            cx = (j - offset_x) * CELL_WIDTH + (0.5 * CELL_WIDTH)
+            cy = (i - offset_y) * CELL_HEIGHT + (0.5 * CELL_HEIGHT)
             if valor == 1:
                 pygame.draw.circle(Display_Surface, (255, 255, 0), (int(cx), int(cy)), 4)
             elif valor == 2:
                 pygame.draw.circle(Display_Surface, (255, 165, 0), (int(cx), int(cy)), 7)
             elif valor == 3:
-                pygame.draw.line(Display_Surface, colorTEST, (cx, i * CELL_HEIGHT), (cx, i * CELL_HEIGHT + CELL_HEIGHT), 3)
+                pygame.draw.line(Display_Surface, colorTEST, (cx, (i - offset_y) * CELL_HEIGHT), (cx, (i - offset_y) * CELL_HEIGHT + CELL_HEIGHT), 3)
             elif valor == 4:
-                pygame.draw.line(Display_Surface, colorTEST, (j * CELL_WIDTH, cy), (j * CELL_WIDTH + CELL_WIDTH, cy), 3)
+                pygame.draw.line(Display_Surface, colorTEST, ((j - offset_x) * CELL_WIDTH, cy), ((j - offset_x) * CELL_WIDTH + CELL_WIDTH, cy), 3)
             elif valor == 5:
-                pygame.draw.arc(Display_Surface, colorTEST, [(j * CELL_WIDTH - (CELL_WIDTH * 0.23)) - 2, cy, CELL_WIDTH, CELL_HEIGHT], 0, PI / 2, 3)
+                pygame.draw.arc(Display_Surface, colorTEST, [((j - offset_x) * CELL_WIDTH - (CELL_WIDTH * 0.23)) - 2, cy, CELL_WIDTH, CELL_HEIGHT], 0, PI / 2, 3)
             elif valor == 6:
-                pygame.draw.arc(Display_Surface, colorTEST, [(j * CELL_WIDTH + (CELL_WIDTH * 0.38)) + 2, cy + 2, CELL_WIDTH, CELL_HEIGHT], PI / 2, PI, 3)
+                pygame.draw.arc(Display_Surface, colorTEST, [((j - offset_x) * CELL_WIDTH + (CELL_WIDTH * 0.38)) + 2, cy + 2, CELL_WIDTH, CELL_HEIGHT], PI / 2, PI, 3)
             elif valor == 7:
-                pygame.draw.arc(Display_Surface, colorTEST, [(j * CELL_WIDTH + (CELL_WIDTH * 0.52)) + 0.9, (i * CELL_HEIGHT - (0.45 * CELL_HEIGHT)) + 1.3, CELL_WIDTH, CELL_HEIGHT], PI, 3 * PI / 2, 3)
+                pygame.draw.arc(Display_Surface, colorTEST, [((j - offset_x) * CELL_WIDTH + (CELL_WIDTH * 0.52)) + 0.9, ((i - offset_y) * CELL_HEIGHT - (0.45 * CELL_HEIGHT)) + 1.3, CELL_WIDTH, CELL_HEIGHT], PI, 3 * PI / 2, 3)
             elif valor == 8:
-                pygame.draw.arc(Display_Surface, colorTEST, [(j * CELL_WIDTH - (CELL_WIDTH * 0.105)) - 0.7, (i * CELL_HEIGHT - (0.4 * CELL_HEIGHT)) - 0.7, CELL_WIDTH, CELL_HEIGHT], 3 * PI / 2, 2 * PI, 3)
+                pygame.draw.arc(Display_Surface, colorTEST, [((j - offset_x) * CELL_WIDTH - (CELL_WIDTH * 0.105)) - 0.7, ((i - offset_y) * CELL_HEIGHT - (0.4 * CELL_HEIGHT)) - 0.7, CELL_WIDTH, CELL_HEIGHT], 3 * PI / 2, 2 * PI, 3)
             elif valor == 9:
-                pygame.draw.line(Display_Surface, "white", (j * CELL_WIDTH, cy), (j * CELL_WIDTH + CELL_WIDTH, cy), 3)
+                pygame.draw.line(Display_Surface, "white", ((j - offset_x) * CELL_WIDTH, cy), ((j - offset_x) * CELL_WIDTH + CELL_WIDTH, cy), 3)
 
 def main():
     corriendo = True
@@ -168,11 +189,14 @@ def main():
         reloj.tick(fps)
         Display_Surface.fill((4, 17, 4))
         draw_board(level)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 corriendo = False
             elif event.type == pygame.KEYDOWN:
-                if event.key in [pygame.K_LEFT, pygame.K_a]:
+                if event.key == pygame.K_ESCAPE:
+                    corriendo = False
+                elif event.key in [pygame.K_LEFT, pygame.K_a]:
                     jugador.mover(-1, 0)
                 elif event.key in [pygame.K_RIGHT, pygame.K_d]:
                     jugador.mover(1, 0)
@@ -185,7 +209,13 @@ def main():
         mover_cabra()
         jugador.dibujar_estela()
         jugador.dibujar()
-        Display_Surface.blit(cabra_img, (cabra_pos[1] * CELL_WIDTH, cabra_pos[0] * CELL_HEIGHT))
+
+        # Dibujar cabra
+        offset_x, offset_y = get_scroll_offset()
+        x = (cabra_pos[1] - offset_x) * CELL_WIDTH
+        y = (cabra_pos[0] - offset_y) * CELL_HEIGHT
+        if 0 <= x <= Ventana_Ancho and 0 <= y <= Ventana_Altura:
+            Display_Surface.blit(cabra_img, (x, y))
 
         if [jugador.fila, jugador.col] == cabra_pos:
             pygame.quit()
@@ -196,6 +226,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

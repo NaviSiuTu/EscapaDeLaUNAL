@@ -66,14 +66,12 @@ mostrar_dialogo = True
 # Botones
 boton_nivel_alpha = pygame.Rect(WIDTH//2 - 110, 220, 220, 45)
 boton_nivel_beta = pygame.Rect(WIDTH//2 - 110, 270, 220, 45)
-<<<<<<< HEAD
+
 boton_nivel_453 = pygame.Rect(WIDTH//2 - 110, 320, 220, 45)
 boton_bolsa = pygame.Rect(WIDTH//2 - 110, 370, 220, 45)
 boton_volver = pygame.Rect(WIDTH//2 - 90, 450, 180, 40)
-=======
-boton_bolsa = pygame.Rect(WIDTH//2 - 110, 340, 220, 45)
-boton_volver = pygame.Rect(WIDTH//2 - 90, 420, 180, 40)
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
+
 
 clock = pygame.time.Clock()
 running = True
@@ -94,7 +92,7 @@ def render_texto_multilinea(texto, fuente, color, ancho_max):
     superficies = [fuente.render(linea.strip(), True, color) for linea in lineas]
     return superficies
 
-<<<<<<< HEAD
+
 def dibujar_botones():
     for boton, texto, color_normal, color_hover in [
         (boton_nivel_alpha, "NIVEL ALPHA", AZUL, AZUL_HOVER),
@@ -126,20 +124,20 @@ def dibujar_dialogo():
         for i, linea_surface in enumerate(texto_lineas):
             screen.blit(linea_surface, (cuadro.x + 10, cuadro.y + 8 + i * 18))
 
-=======
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
+
 def animacion_entrada():
     paso = 10
     for ancho in range(WIDTH // 2, -1, -paso):
         screen.blit(fondo, (0, 0))
         screen.blit(buho_img, buho_rect)
-<<<<<<< HEAD
+
         dibujar_cabecera()
         dibujar_botones()
         dibujar_dialogo()
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
-=======
+
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
@@ -177,7 +175,7 @@ def animacion_entrada():
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
         pygame.display.flip()
         pygame.time.delay(25)
 
@@ -186,13 +184,13 @@ def animacion_salida():
     for ancho in range(0, WIDTH // 2 + paso, paso):
         screen.blit(fondo, (0, 0))
         screen.blit(buho_img, buho_rect)
-<<<<<<< HEAD
+
         dibujar_cabecera()
         dibujar_botones()
         dibujar_dialogo()
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
-=======
+
         pygame.draw.rect(screen, NEGRO, (0, 0, WIDTH, 38))
         texto_jugador = fuente.render(f"Jugador: {nombre_usuario} | Monedas: {monedas}", True, BLANCO)
         screen.blit(texto_jugador, (10, 10))
@@ -230,7 +228,7 @@ def animacion_salida():
         pygame.draw.rect(screen, NEGRO, (0, 0, ancho, HEIGHT))
         pygame.draw.rect(screen, NEGRO, (WIDTH - ancho, 0, ancho, HEIGHT))
 
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
         pygame.display.flip()
         pygame.time.delay(20)
 
@@ -242,10 +240,10 @@ animacion_entrada()
 # Bucle principal
 while running:
     screen.blit(fondo, (0, 0))
-<<<<<<< HEAD
+
     dibujar_cabecera()
     dibujar_botones()
-=======
+
     mouse_pos = pygame.mouse.get_pos()
 
     # Encabezado
@@ -272,7 +270,7 @@ while running:
                                    boton.centery - texto_render.get_height() // 2))
 
     # Búho y diálogo
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
     screen.blit(buho_img, buho_rect)
     dibujar_dialogo()
 
@@ -290,18 +288,18 @@ while running:
             elif boton_nivel_beta.collidepoint(event.pos):
                 animacion_salida()
                 pygame.display.quit()
-                os.system(f'python "NIVELES Y BOARD/nivel_Beta_juegopygame.py" {uid}')
+                os.system(f'python "niveldfs.py" {uid}')
                 sys.exit()
 
-<<<<<<< HEAD
+
             elif boton_nivel_453.collidepoint(event.pos):
                 animacion_salida()
                 pygame.display.quit()
                 os.system(f'python "NIVELES Y BOARD/nivel_mapa_453.py" {uid}')
                 sys.exit()
 
-=======
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
+
             elif boton_bolsa.collidepoint(event.pos):
                 animacion_salida()
                 pygame.display.quit()
@@ -325,7 +323,7 @@ pygame.quit()
 
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 38efcddc43a5f9255cc357cc5082c36122e1cb12
+
+
+
