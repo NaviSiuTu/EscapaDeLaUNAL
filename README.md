@@ -6,7 +6,7 @@
 
 ## GAMEPLAY DE LA DEMO
 
-![Click para ver la demo](https://github.com/user-attachments/assets/73308de8-0c18-4cce-bb8f-4779cd97577a) <!-- Puedes cambiar esto por un GIF o video tuyo -->
+![Click para ver la demo](https://drive.google.com/file/d/1RpyrtCZBASrvKkY1bhqjn0FCn4CeyNPZ/view?usp=sharing) <!-- Puedes cambiar esto por un GIF o video tuyo -->
 
 ---
 
