@@ -51,7 +51,7 @@ Comandos por voz soportados: "arriba, sube o adelante" , "abajo o baja", "izquie
 
 ```bash
 # Clona el repositorio
-Puedes descargar el los archivos del juego descargando el .zip de este repositorio
+Puedes descargar los archivos del juego descargando el .zip de este repositorio
 
 # Entra al directorio
 cd escapa-unal
