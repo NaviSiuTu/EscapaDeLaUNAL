@@ -83,7 +83,7 @@ python login.py
 Desarrollado por **Iván Santisteban**, **Daniela Pantoja**, **Eduardo Sanchez**
 
 ## 🎇ARCHIVO DE DOCUMENTACIÓN DEL PROYECTO:
-![Click para ver la demo]
+![Click para ver la documentación]
 
 💬 "La educación es la clave... pero escapar también cuenta"
 
