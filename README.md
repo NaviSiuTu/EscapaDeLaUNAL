@@ -51,13 +51,17 @@ Comandos por voz soportados: "arriba, sube o adelante" , "abajo o baja", "izquie
 
 ```bash
 # Clona el repositorio
-https://github.com/tuusuario/escapa-unal.git
+Puedes descargar el los archivos del juego descargando el .zip de este repositorio
 
 # Entra al directorio
 cd escapa-unal
+también puedes usar Visual Studio Code
 
 # Instala dependencias
-pip install -r requirements.txt
+pip install pygame
+pip install SpeechRecognition
+pip install pyaudio       # Para capturar audio (requerido por SpeechRecognition)
+pip install firebase-admin
 
 # Ejecuta el juego
 python login.py
