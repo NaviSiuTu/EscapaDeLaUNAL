@@ -6,35 +6,35 @@
 
 ## GAMEPLAY DE LA DEMO
 
-![Click para ver la demo](https://drive.google.com/file/d/1RpyrtCZBASrvKkY1bhqjn0FCn4CeyNPZ/view?usp=sharing) <!-- Puedes cambiar esto por un GIF o video tuyo -->
+![Click para ver la demo](https://github.com/user-attachments/assets/5b4e4508-f6ad-4508-835e-a49ea079c293) <!-- Puedes cambiar esto por un GIF o video tuyo -->
 
 ---
 
-## 🛠️ Tecnologías y librerías usadas para la realización de este proyecto:
+##  Tecnologías y librerías usadas para la realización de este proyecto:
 
-* 🐍 Python 3.13
-* 🕹️ Pygame 2.5.5
-* 🔊 SpeechRecognition (control por voz)
-* ☁️ Firebase Realtime Database (bolsa y tienda)
-* 📊 Generador DFS adaptado a los limites de los mapas
+* Python 3.13
+* Pygame 2.5.5
+* SpeechRecognition (control por voz)
+* Firebase Realtime Database (bolsa y tienda)
+* Generador DFS adaptado a los limites de los mapas
 
 ---
 
-## 🎯 Características principales
+##  Características principales
 
-* ✅ Laberintos aleatorios con estructura laberíntica estratégica (el jugador debe saber que movimientos hacer para moverse en el laberinto)
-* ✅ Control de jugador con teclado o voz
-* ✅ Bolsa visual con botones interactivos (aquí se encuentran los poderes
-* ✅ Poderes:
+* Laberintos aleatorios con estructura laberíntica estratégica (el jugador debe saber que movimientos hacer para moverse en el laberinto)
+* Control de jugador con teclado o voz
+* Bolsa visual con botones interactivos (aquí se encuentran los poderes
+* Poderes:
 
   * **Tula Bienestar UN**: te protege de un golpe y activa inmunidad temporal
   * **Tinto cafetería UNAL**: aumenta velocidad del jugador
   * **Sticker UNAL**: ralentiza a la cabra (enemigo)
-* ✅ Enemigo con IA que sigue tu rastro como en el juego *Tomb of the Mask*
-* ✅ Movimiento del jugador estilo *Tomb of the Mask*
+* Enemigo con IA que sigue tu rastro como en el juego *Tomb of the Mask*
+* Movimiento del jugador estilo *Tomb of the Mask*
 ---
 
-## 🎮 Controles
+##  Controles
 
 | Acción        | Tecla / Voz          |
 | ------------- | -------------------- |
@@ -47,7 +47,7 @@ Comandos por voz soportados: "arriba, sube o adelante" , "abajo o baja", "izquie
 
 ---
 
-## 📦 Instalación
+##  Instalación
 
 ```bash
 # Clona el repositorio
@@ -69,16 +69,16 @@ python login.py
 
 ---
 
-## 🧠 Ideas futuras
+##  Ideas futuras
 
-* 🎭 Diálogos narrativos entre niveles
-* ⛰️ Más mapas: edificios icónicos de la Universidad
-* ⚔️ Sistema de movimiento por voz más robusto
-* 📰 Tabla global de monedas
+*  Diálogos narrativos entre niveles
+*  Más mapas: edificios icónicos de la Universidad
+*  Sistema de movimiento por voz más robusto
+*  Tabla global de monedas
 
 ---
 
-## 👨‍💼 Autores
+##  Autores
 
 Desarrollado por **Iván Santisteban**, **Daniela Pantoja**, **Eduardo Sanchez**
 
