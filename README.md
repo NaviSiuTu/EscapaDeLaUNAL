@@ -83,7 +83,6 @@ python login.py
 Desarrollado por **Iván Santisteban**, **Daniela Pantoja**, **Eduardo Sanchez**
 
 ## 🎇ARCHIVO DE DOCUMENTACIÓN DEL PROYECTO:
-![Click para ver la documentación]()
 [Documento EDUN ESCAPA DE LA UNAL (1).pdf](https://github.com/user-attachments/files/21282555/Documento.EDUN.ESCAPA.DE.LA.UNAL.1.pdf)
 
 💬 "La educación es la clave... pero escapar también cuenta"
